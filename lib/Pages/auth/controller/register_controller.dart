@@ -23,7 +23,7 @@ class RegisterController extends GetxController {
     try {
       final user = await authService.signUp(email, password);
       if (user != null) {
-        Get.offAllNamed(MyRoutes.home);
+        Get.offAllNamed(MyRoutes.login);
       } else {
         Get.snackbar("Error", "Registration failed. Please try again.");
       }

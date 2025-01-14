@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manganjawa/routes/routes.dart';
+import 'components/custom_text_field.dart';
+import 'components/custom_button.dart';
 import 'controller/register_controller.dart';
 
 class RegisterPage extends StatelessWidget {
-
   final RegisterController registerController = Get.put(RegisterController());
 
   RegisterPage({super.key});
@@ -12,102 +14,123 @@ class RegisterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(
-          child: Column(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: const Color(0xFF393939),
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/login.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Stack(
             children: [
-              //logo
-              Icon(
-                Icons.food_bank,
-                size: 100,
-                color: Theme.of(context).colorScheme.inversePrimary,
-              ),
-              //title
-              Text(
-                'Mangan Jawa',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.inversePrimary,
-                ),
-              ),
-              //email field
-              TextField(
-                controller: registerController.emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                ),
-              ),
-              //password field
-              TextField(
-                controller: registerController.passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                ),
-              ),
-              //confirm password field
-              TextField(
-                controller: registerController.confirmPwController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                ),
-              ),
+              Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'images/registerImage.png',
+                            width: double.infinity,
+                            height: 300,
+                            fit: BoxFit.cover,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 50),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Create Account',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 33,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'please fill the form to continue',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.50,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(height: 30),
 
-              SizedBox(height: 20),
-              //login button
-              ElevatedButton(
-                  onPressed: registerController.register,
-                  child: const Text('Sign Up')),
-              //signup button
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-                ),
-                onPressed: () {
-                  Get.back();
-                },
-                child: Text('Have an account? Login'),
+                                // Email TextField
+                                CustomTextField(
+                                  controller:
+                                      registerController.emailController,
+                                  hintText: 'Enter email',
+                                ),
+                                const SizedBox(height: 10),
+
+                                // Password TextField
+                                CustomTextField(
+                                  controller:
+                                      registerController.passwordController,
+                                  hintText: 'Password',
+                                  obscureText: true,
+                                ),
+                                const SizedBox(height: 10),
+
+                                // Confirm Password TextField
+                                CustomTextField(
+                                  controller:
+                                      registerController.confirmPwController,
+                                  hintText: 'Confirm Password',
+                                  obscureText: true,
+                                ),
+                                const SizedBox(height: 30),
+
+                                // Register Button
+                                CustomButton(
+                                  onPressed: registerController.register,
+                                  text: 'Sign Up',
+                                ),
+                                const SizedBox(height: 60),
+
+                                // Login Link
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Already have an Account? ',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () => Get.back(),
+                                      child: const Text(
+                                        'Login',
+                                        style: TextStyle(
+                                          color: Color(0xFFF79515),
+                                          fontSize: 14,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
