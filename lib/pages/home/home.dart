@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/auth_service.dart';
+import 'package:manganjawa/Pages/auth/services/auth_service.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
