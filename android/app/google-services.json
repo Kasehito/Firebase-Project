@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:314937572823:android:08b623bf2379cd37085f92",
+        "mobilesdk_app_id": "1:314937572823:android:d895b1e4c9097fa4085f92",
         "android_client_info": {
           "package_name": "com.example.manganjawa"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "314937572823-iqndar4q8u760omp22s8tdnelkntfuio.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.manganjawa",
+            "certificate_hash": "54a5e5dd418147dc9980528296a3cfbf3b3f3424"
+          }
+        },
         {
           "client_id": "314937572823-f321h8m0tvnrcragkf37nbm89adikh4j.apps.googleusercontent.com",
           "client_type": 3
