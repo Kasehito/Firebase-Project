@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/controller/register_controller.dart';
+import 'controller/register_controller.dart';
 
 class RegisterPage extends StatelessWidget {
 

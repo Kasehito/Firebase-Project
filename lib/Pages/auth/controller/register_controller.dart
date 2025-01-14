@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/auth_service.dart';
+import 'package:manganjawa/Pages/auth/services/auth_service.dart';
 import 'package:manganjawa/routes/routes.dart';
 
 class RegisterController extends GetxController {
