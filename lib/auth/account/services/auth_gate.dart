@@ -5,8 +5,8 @@ authenticated -> homepage
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:manganjawa/pages/auth/login.dart';
-import 'package:manganjawa/pages/home/home.dart';
+import 'package:manganjawa/auth/account/login.dart';
+import 'package:manganjawa/pages/homepage.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -29,7 +29,7 @@ class AuthGate extends StatelessWidget {
         if (session == null) {
           return LoginPage();
         } else {
-          return HomePage();
+          return Homepage();
         }
       },
     );

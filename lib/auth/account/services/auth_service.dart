@@ -6,6 +6,22 @@ import 'package:manganjawa/routes/routes.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  User? getCurrentUser() {
+    return _auth.currentUser;
+  }
+
+  Future<void> updateUserName(String newName) async {
+    try {
+      User? user = getCurrentUser();
+      if (user != null) {
+        await user.updateDisplayName(newName);
+        Get.snackbar("Success", "Profile name updated successfully");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to update profile name: ${e.toString()}");
+    }
+  }
+
   Future<User?> signUp(String emailAddress, String password) async {
     try {
       final UserCredential credential =

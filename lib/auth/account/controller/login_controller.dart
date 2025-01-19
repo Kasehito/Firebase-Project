@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/Pages/auth/services/auth_service.dart';
+import 'package:manganjawa/auth/account/services/auth_service.dart';
 import 'package:manganjawa/routes/routes.dart';
 
 class LoginController extends GetxController {
@@ -15,7 +15,7 @@ class LoginController extends GetxController {
     try {
       final user = await authService.logIn(email, password);
       if (user != null) {
-        Get.offAllNamed(MyRoutes.home);
+        Get.offAllNamed(MyRoutes.homePage);
       } else {
         Get.snackbar("Error", "Login failed. Please check your credentials.");
       }
@@ -28,7 +28,7 @@ class LoginController extends GetxController {
     try {
       final user = await authService.signInWithGoogle();
       if (user != null) {
-        Get.offAllNamed(MyRoutes.home);
+        Get.offAllNamed(MyRoutes.homePage);
       } else {
         Get.snackbar("Error", "Login failed. Please try again.");
       }
