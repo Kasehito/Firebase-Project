@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/routes/routes.dart';
 import 'components/custom_text_field.dart';
 import 'components/custom_button.dart';
 import 'controller/register_controller.dart';
