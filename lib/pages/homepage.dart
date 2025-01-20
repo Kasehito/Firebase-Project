@@ -11,7 +11,7 @@ class Homepage extends GetView<NavigationController> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope( 
+    return WillPopScope( // Add this to handle back button
       onWillPop: () async {
         if (controller.selectedIndex != 0) {
           controller.changeIndex(0);

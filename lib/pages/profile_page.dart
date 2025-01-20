@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manganjawa/auth/account/components/mycolors.dart';
 import 'package:manganjawa/controller/profile_contoller.dart';
 
 class ProfilePage extends GetView<ProfileController> {
@@ -8,7 +9,7 @@ class ProfilePage extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black,
+      color: AppColors.primary,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -33,12 +34,14 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Text(
-      'Profile',
-      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+    return Center(
+      child: Text(
+        'Profile',
+        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: AppColors.textColor,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
     );
   }
 
@@ -55,7 +58,7 @@ class ProfilePage extends GetView<ProfileController> {
         child: const Icon(
           Icons.person,
           size: 60,
-          color: Colors.white,
+          color: AppColors.textColor,
         ),
       ),
     );
@@ -75,7 +78,7 @@ class ProfilePage extends GetView<ProfileController> {
               Text(
                 'Name',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.grey,
+                      color: AppColors.subText,
                     ),
               ),
               const SizedBox(height: 8),
@@ -85,7 +88,7 @@ class ProfilePage extends GetView<ProfileController> {
                         child: controller.isEditing.value
                             ? TextField(
                                 controller: controller.nameController,
-                                style: const TextStyle(color: Colors.white),
+                                style: const TextStyle(color: AppColors.textColor),
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
                                 ),
@@ -93,7 +96,7 @@ class ProfilePage extends GetView<ProfileController> {
                             : Text(
                                 controller.nameController.text,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.textColor,
                                   fontSize: 16,
                                 ),
                               ),
@@ -101,7 +104,7 @@ class ProfilePage extends GetView<ProfileController> {
                       IconButton(
                         icon: Icon(
                           controller.isEditing.value ? Icons.check : Icons.edit,
-                          color: Colors.orange,
+                          color: AppColors.secondary,
                         ),
                         onPressed: controller.toggleEditing,
                       ),
@@ -128,14 +131,14 @@ class ProfilePage extends GetView<ProfileController> {
               Text(
                 'Email',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.grey,
+                      color: AppColors.subText,
                     ),
               ),
               const SizedBox(height: 8),
               Obx(() => Text(
                     controller.userEmail.value,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textColor,
                       fontSize: 16,
                     ),
                   )),
@@ -152,7 +155,7 @@ class ProfilePage extends GetView<ProfileController> {
       child: ElevatedButton(
         onPressed: () => controller.logout(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange,
+          backgroundColor: Colors.red,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -161,7 +164,7 @@ class ProfilePage extends GetView<ProfileController> {
         child: const Text(
           'Logout',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textColor,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),

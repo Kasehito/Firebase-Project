@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manganjawa/auth/account/components/mycolors.dart';
 import 'package:manganjawa/controller/navigation_controller.dart';
 
 class BottomNavBar extends GetView<NavigationController> {
@@ -21,7 +22,7 @@ class BottomNavBar extends GetView<NavigationController> {
         currentIndex: controller.selectedIndex,
         onTap: controller.navigateToPage,
         backgroundColor: Colors.black,
-        selectedItemColor: Colors.orange,
+        selectedItemColor: AppColors.secondary,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
