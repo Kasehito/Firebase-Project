@@ -6,12 +6,10 @@ import 'package:get/get.dart';
 import 'package:manganjawa/theme/dark_mode.dart';
 import 'theme/light_mode.dart';
 import 'package:manganjawa/routes/routes.dart';
-import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  Get.put(OrdersController());
   runApp(const MainApp());
 }
 

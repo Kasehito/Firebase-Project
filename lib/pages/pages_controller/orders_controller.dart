@@ -3,10 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../pages_models/menu_model.dart';
 import '../pages_models/orders_model.dart';
+import '../../services/notification_service.dart';
 
 class OrdersController extends GetxController {
   final RxList<OrderModel> ordersList = <OrderModel>[].obs;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late NotificationService _notificationService;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Try to find NotificationService, if not found, create new instance
+    try {
+      _notificationService = Get.find<NotificationService>();
+    } catch (e) {
+      _notificationService = Get.put(NotificationService(), permanent: true);
+    }
+  }
 
   Future<void> addToOrder(MenuModel menu) async {
     try {
@@ -25,10 +38,10 @@ class OrdersController extends GetxController {
 
       final currentStock = menuDoc.data()?['stok'] as int;
       
-      // Find existing order if any
       final existingOrderIndex = ordersList.indexWhere((order) => order.menuId == menu.id);
       final requestedQuantity = existingOrderIndex != -1 ? 
           ordersList[existingOrderIndex].quantity + 1 : 1;
+          
       if (currentStock < requestedQuantity) {
         Get.snackbar(
           'Out of Stock',
@@ -66,6 +79,25 @@ class OrdersController extends GetxController {
         'stok': currentStock - 1
       });
 
+      // Show notification using try-catch to handle potential notification errors
+      try {
+        await _notificationService.showLocalNotification(
+          title: 'Added to Cart',
+          body: '${menu.nama} has been added to your cart',
+        );
+      } catch (notificationError) {
+        print('Notification error: $notificationError');
+        // Continue execution even if notification fails
+      }
+
+      Get.snackbar(
+        'Success',
+        '${menu.nama} added to cart',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
     } catch (e) {
       print('Error adding to order: $e');
       Get.snackbar(
@@ -99,8 +131,28 @@ class OrdersController extends GetxController {
             price: existingOrder.price,
             createdAt: existingOrder.createdAt,
           );
+          
+          // Show notification for reducing quantity
+          try {
+            await _notificationService.showLocalNotification(
+              title: 'Cart Updated',
+              body: 'Reduced quantity of ${existingOrder.menuName}',
+            );
+          } catch (notificationError) {
+            print('Notification error: $notificationError');
+          }
         } else {
           ordersList.removeAt(existingOrderIndex);
+          
+          // Show notification for removing item
+          try {
+            await _notificationService.showLocalNotification(
+              title: 'Item Removed',
+              body: '${existingOrder.menuName} removed from cart',
+            );
+          } catch (notificationError) {
+            print('Notification error: $notificationError');
+          }
         }
       }
     } catch (e) {
@@ -166,6 +218,16 @@ class OrdersController extends GetxController {
 
         // Commit the batch
         await batch.commit();
+        
+        // Show checkout completion notification
+        try {
+          await _notificationService.showLocalNotification(
+            title: 'Order Completed',
+            body: 'Your order has been successfully placed!',
+          );
+        } catch (notificationError) {
+          print('Notification error: $notificationError');
+        }
         
         // Clear orders after successful checkout
         ordersList.clear();

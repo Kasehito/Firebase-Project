@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/routes/routes.dart';
+import 'package:manganjawa/services/user_token_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserTokenService _tokenService = UserTokenService();
 
   User? getCurrentUser() {
     return _auth.currentUser;
@@ -29,6 +31,10 @@ class AuthService {
         email: emailAddress,
         password: password,
       );
+
+      if (credential.user != null) {
+        await _tokenService.saveUserToken();
+      }
       return credential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -53,6 +59,10 @@ class AuthService {
         email: emailAddress,
         password: password,
       );
+
+      if (credential.user != null) {
+        await _tokenService.saveUserToken();
+      }
       return credential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -68,15 +78,18 @@ class AuthService {
 
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
 
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+    final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    if (userCredential.user != null) {
+        await _tokenService.saveUserToken();
+      }
+    return userCredential;
   }
 
   Future<void> signOut() async {
