@@ -10,7 +10,7 @@ class MenuService {
   // Create
   Future<void> addMenu(MenuModel menu) async {
     try {
-      // Tentukan ID dokumen secara manual
+      // Tetapkan ID dokumen secara manual
       String newId = DateTime.now().millisecondsSinceEpoch.toString();
 
       // Simpan data ke Firestore dengan ID yang ditentukan
