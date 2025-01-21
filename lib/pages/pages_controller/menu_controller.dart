@@ -8,6 +8,7 @@ class TableMenuController extends GetxController {
   final MenuService _menuService = MenuService();
   final RxList<MenuModel> menuList = <MenuModel>[].obs;
   final RxBool isLoading = false.obs;
+  
 
   @override
   void onInit() {

@@ -1,9 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-
-import 'package:manganjawa/pages/pages_models/menu_model.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
 import 'package:manganjawa/widgets/home_container.dart';
 import 'package:manganjawa/widgets/category_card.dart';
@@ -11,6 +7,7 @@ import 'package:manganjawa/widgets/menu_card.dart';
 import 'package:manganjawa/widgets/edit_delete_dialog.dart';
 import 'package:manganjawa/widgets/edit_menu_dialog.dart';
 import 'package:manganjawa/widgets/add_menu_dialog.dart';
+import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
 
 class Home extends StatelessWidget {
   final TableMenuController menuController = Get.put(TableMenuController());
@@ -156,6 +153,22 @@ class Home extends StatelessWidget {
                                   price: menu.harga,
                                   stock: menu.stok,
                                   icon: _getIconForCategory(menu.kategori),
+                                  onAddToOrder: () {
+                                    final OrdersController ordersController =
+                                        Get.find<OrdersController>();
+
+                                    ordersController.addToOrder(
+                                        menu); // Kirim menu ke OrdersController
+
+                                    Get.snackbar(
+                                      'Item Added',
+                                      '${menu.nama} has been added to your order',
+                                      snackPosition: SnackPosition.BOTTOM,
+                                      backgroundColor: Colors.green,
+                                      colorText: Colors.white,
+                                      duration: const Duration(seconds: 2),
+                                    );
+                                  },
                                 ),
                               ),
                             );
