@@ -14,18 +14,35 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        height: 64,
-        padding: const EdgeInsets.all(16),
-        clipBehavior: Clip.antiAlias,
-        decoration: ShapeDecoration(
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
           color: color,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          width: 2,
         ),
-        child: Center(
-          child: Icon(icon, size: 32),
-        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 32,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

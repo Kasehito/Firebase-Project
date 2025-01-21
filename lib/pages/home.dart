@@ -1,201 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
-import 'package:manganjawa/widgets/home_container.dart';
+import 'package:manganjawa/widgets/add_menu_dialog.dart';
 import 'package:manganjawa/widgets/category_card.dart';
-import 'package:manganjawa/widgets/menu_card.dart';
+import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
 import 'package:manganjawa/widgets/edit_delete_dialog.dart';
 import 'package:manganjawa/widgets/edit_menu_dialog.dart';
-import 'package:manganjawa/widgets/add_menu_dialog.dart';
-import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
+import 'package:manganjawa/widgets/home_container.dart';
+import 'package:manganjawa/widgets/menu_card.dart';
 
 class Home extends StatelessWidget {
   final TableMenuController menuController = Get.put(TableMenuController());
 
   Home({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddMenuDialog(context),
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.orange, // Sesuaikan warna sesuai kebutuhan
-      ),
-      body: HomeContainer(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 709,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 111,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              'Mangan Jawa',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontFamily: 'Raleway',
-                                fontWeight: FontWeight.w700,
-                                height: 1.28,
-                                letterSpacing: -0.50,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const [
-                              CategoryCard(
-                                color: Color(0xFFF5D4C1),
-                                icon: Icons.fastfood,
-                                label: 'Makanan',
-                              ),
-                              SizedBox(width: 16),
-                              CategoryCard(
-                                color: Color(0xFFFDEBC8),
-                                icon: Icons.local_drink,
-                                label: 'Minuman',
-                              ),
-                              SizedBox(width: 16),
-                              CategoryCard(
-                                color: Color(0xFFD0F1EB),
-                                icon: Icons.cake,
-                                label: 'Snack',
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const SizedBox(
-                      width: double.infinity,
-                      child: Text(
-                        'Food Menu',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontFamily: 'Raleway',
-                          fontWeight: FontWeight.w700,
-                          height: 1.28,
-                          letterSpacing: -0.50,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: Obx(
-                        () => ListView.builder(
-                          itemCount: menuController.menuList.length,
-                          itemBuilder: (context, index) {
-                            final menu = menuController.menuList[index];
-                            return GestureDetector(
-                              onLongPress: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => EditDeleteDialog(
-                                    onEdit: () {
-                                      Navigator.pop(context);
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => EditMenuDialog(
-                                          initialName: menu.nama,
-                                          initialDescription: menu.deskripsi,
-                                          initialPrice: menu.harga,
-                                          initialStock: menu.stok,
-                                          onSave: (name, description, price,
-                                              stock) {
-                                            menuController.updateMenu(
-                                              menu.id!,
-                                              name,
-                                              menu.kategori,
-                                              description,
-                                              price,
-                                              stock,
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    onDelete: () {
-                                      menuController.deleteMenu(menu.id!);
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: MenuCard(
-                                  name: menu.nama,
-                                  description: menu.deskripsi,
-                                  price: menu.harga,
-                                  stock: menu.stok,
-                                  icon: _getIconForCategory(menu.kategori),
-                                  onAddToOrder: () {
-                                    final OrdersController ordersController =
-                                        Get.find<OrdersController>();
-
-                                    ordersController.addToOrder(
-                                        menu); // Kirim menu ke OrdersController
-
-                                    Get.snackbar(
-                                      'Item Added',
-                                      '${menu.nama} has been added to your order',
-                                      snackPosition: SnackPosition.BOTTOM,
-                                      backgroundColor: Colors.green,
-                                      colorText: Colors.white,
-                                      duration: const Duration(seconds: 2),
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   IconData _getIconForCategory(String category) {
-    switch (category) {
-      case 'Makanan':
+    switch (category.toLowerCase()) {
+      case 'makanan':
         return Icons.fastfood;
-      case 'Minuman':
+      case 'minuman':
         return Icons.local_drink;
-      case 'Snack':
+      case 'snack':
         return Icons.cake;
       default:
-        return Icons.fastfood;
+        return Icons.restaurant;
     }
   }
 
@@ -206,6 +34,162 @@ class Home extends StatelessWidget {
         onAdd: (nama, kategori, deskripsi, harga, stok) {
           menuController.addMenu(nama, kategori, deskripsi, harga, stok);
         },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddMenuDialog(context),
+        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xFFFF9F1C),
+      ),
+      body: HomeContainer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Mangan Jawa',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: const [
+                        CategoryCard(
+                          color: Color(0xFFF5D4C1),
+                          icon: Icons.fastfood,
+                          label: 'Makanan',
+                        ),
+                        SizedBox(width: 16),
+                        CategoryCard(
+                          color: Color(0xFFFDEBC8),
+                          icon: Icons.local_drink,
+                          label: 'Minuman',
+                        ),
+                        SizedBox(width: 16),
+                        CategoryCard(
+                          color: Color(0xFFD0F1EB),
+                          icon: Icons.cake,
+                          label: 'Snack',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Food Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'See All',
+                      style: TextStyle(
+                        color: Color(0xFFFF9F1C),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(
+                  () => ListView.builder(
+                    itemCount: menuController.menuList.length,
+                    itemBuilder: (context, index) {
+                      final menu = menuController.menuList[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: GestureDetector(
+                          onLongPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => EditDeleteDialog(
+                                onEdit: () {
+                                  Navigator.pop(context);
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => EditMenuDialog(
+                                      initialName: menu.nama,
+                                      initialDescription: menu.deskripsi,
+                                      initialPrice: menu.harga,
+                                      initialStock: menu.stok,
+                                      onSave: (name, description, price, stock) {
+                                        menuController.updateMenu(
+                                          menu.id!,
+                                          name,
+                                          menu.kategori,
+                                          description,
+                                          price,
+                                          stock,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                onDelete: () {
+                                  menuController.deleteMenu(menu.id!);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            );
+                          },
+                          child: MenuCard(
+                            name: menu.nama,
+                            description: menu.deskripsi,
+                            price: menu.harga,
+                            stock: menu.stok,
+                            icon: _getIconForCategory(menu.kategori),
+                            onAddToOrder: () {
+                              final OrdersController ordersController =
+                                  Get.find<OrdersController>();
+                              ordersController.addToOrder(menu);
+                              Get.snackbar(
+                                'Success',
+                                '${menu.nama} added to cart',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.green,
+                                colorText: Colors.white,
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -2,59 +2,103 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../pages/pages_controller/orders_controller.dart';
 
-class OrdersPage extends StatefulWidget {
-  const OrdersPage({super.key});
-
-  @override
-  State<OrdersPage> createState() => _OrdersPageState();
-}
-
-class _OrdersPageState extends State<OrdersPage> {
+class OrdersPage extends StatelessWidget {
   final OrdersController ordersController = Get.find<OrdersController>();
+
+  OrdersPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1A1A1A),
       appBar: AppBar(
-        title: const Text('Orders'),
+        backgroundColor: const Color(0xFF2A2A2A),
+        title: const Text(
+          'Your Orders',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        elevation: 0,
       ),
       body: Obx(
         () => ordersController.ordersList.isEmpty
-            ? const Center(
-                child: Text('No orders yet'),
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 64,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Your cart is empty',
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
               )
             : ListView.builder(
+                padding: const EdgeInsets.all(16),
                 itemCount: ordersController.ordersList.length,
                 itemBuilder: (context, index) {
                   final order = ordersController.ordersList[index];
-                  return ListTile(
-                    title: Text(order.menuName),
-                    subtitle: Text('Quantity: ${order.quantity}'),
-                    trailing: Text(
-                      'Rp ${(order.price * order.quantity).toStringAsFixed(2)}',
+                  return Card(
+                    color: const Color(0xFF2A2A2A),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    leading: IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () {
-                        ordersController.removeOrder(order.menuId);
-                        if (order.quantity > 1) {
-                          Get.snackbar(
-                            'Quantity Reduced',
-                            'Quantity of ${order.menuName} has been reduced',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.orange,
-                            colorText: Colors.white,
-                          );
-                        } else {
-                          Get.snackbar(
-                            'Item Removed',
-                            '${order.menuName} has been removed from the order',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                        }
-                      },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  order.menuName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Quantity: ${order.quantity}',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            'Rp ${(order.price * order.quantity).toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Color(0xFFFF9F1C),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => ordersController.removeOrder(order.menuId),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -62,36 +106,68 @@ class _OrdersPageState extends State<OrdersPage> {
       ),
       bottomNavigationBar: Obx(
         () => Container(
-          padding: const EdgeInsets.all(16),
-          color: Colors.orange,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Total: Rp ${ordersController.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              ElevatedButton(
-                onPressed: ordersController.ordersList.isEmpty
-                    ? null
-                    : () async {
-                        // Execute checkout logic
-                        await ordersController.checkout();
-                        Get.snackbar(
-                          'Checkout Successful',
-                          'Your order has been processed!',
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.green,
-                          colorText: Colors.white,
-                        );
-                      },
-                child: const Text('Checkout'),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
               ),
             ],
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total Amount',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Rp ${ordersController.totalAmount.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Color(0xFFFF9F1C),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: ordersController.ordersList.isEmpty
+                        ? null
+                        : () async {
+                            await ordersController.checkout();
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF9F1C),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Checkout',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

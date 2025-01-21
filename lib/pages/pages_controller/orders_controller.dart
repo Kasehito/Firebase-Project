@@ -6,102 +6,187 @@ import '../pages_models/orders_model.dart';
 
 class OrdersController extends GetxController {
   final RxList<OrderModel> ordersList = <OrderModel>[].obs;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void addToOrder(MenuModel menu) {
-    final existingOrderIndex =
-        ordersList.indexWhere((order) => order.menuId == menu.id);
+  Future<void> addToOrder(MenuModel menu) async {
+    try {
+      final menuDoc = await _firestore.collection('menu').doc(menu.id).get();
+      
+      if (!menuDoc.exists) {
+        Get.snackbar(
+          'Error',
+          'Menu item not found',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
 
-    if (existingOrderIndex != -1) {
-      OrderModel existingOrder = ordersList[existingOrderIndex];
-      ordersList[existingOrderIndex] = OrderModel(
-        id: existingOrder.id,
-        menuId: menu.id!,
-        menuName: menu.nama,
-        quantity: existingOrder.quantity + 1,
-        price: menu.harga,
-        createdAt: DateTime.now(),
+      final currentStock = menuDoc.data()?['stok'] as int;
+      
+      // Find existing order if any
+      final existingOrderIndex = ordersList.indexWhere((order) => order.menuId == menu.id);
+      final requestedQuantity = existingOrderIndex != -1 ? 
+          ordersList[existingOrderIndex].quantity + 1 : 1;
+      if (currentStock < requestedQuantity) {
+        Get.snackbar(
+          'Out of Stock',
+          'Not enough stock available for ${menu.nama}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Update the orders list
+      if (existingOrderIndex != -1) {
+        OrderModel existingOrder = ordersList[existingOrderIndex];
+        ordersList[existingOrderIndex] = OrderModel(
+          id: existingOrder.id,
+          menuId: menu.id!,
+          menuName: menu.nama,
+          quantity: existingOrder.quantity + 1,
+          price: menu.harga,
+          createdAt: DateTime.now(),
+        );
+      } else {
+        ordersList.add(OrderModel(
+          menuId: menu.id!,
+          menuName: menu.nama,
+          quantity: 1,
+          price: menu.harga,
+          createdAt: DateTime.now(),
+        ));
+      }
+
+      // Update stock in Firestore
+      await _firestore.collection('menu').doc(menu.id).update({
+        'stok': currentStock - 1
+      });
+
+    } catch (e) {
+      print('Error adding to order: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to add item to order',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
-    } else {
-      ordersList.add(OrderModel(
-        menuId: menu.id!,
-        menuName: menu.nama,
-        quantity: 1,
-        price: menu.harga,
-        createdAt: DateTime.now(),
-      ));
     }
   }
 
-  void removeOrder(String menuId) {
-    final existingOrderIndex =
-        ordersList.indexWhere((order) => order.menuId == menuId);
-    if (existingOrderIndex != -1) {
-      final existingOrder = ordersList[existingOrderIndex];
-      if (existingOrder.quantity > 1) {
-        ordersList[existingOrderIndex] = OrderModel(
-          id: existingOrder.id,
-          menuId: existingOrder.menuId,
-          menuName: existingOrder.menuName,
-          quantity: existingOrder.quantity - 1,
-          price: existingOrder.price,
-          createdAt: existingOrder.createdAt,
-        );
-      } else {
-        ordersList.removeAt(existingOrderIndex);
+  Future<void> removeOrder(String menuId) async {
+    try {
+      final existingOrderIndex = ordersList.indexWhere((order) => order.menuId == menuId);
+      
+      if (existingOrderIndex != -1) {
+        final existingOrder = ordersList[existingOrderIndex];
+        
+        // Update stock in Firestore (increase by 1)
+        await _firestore.collection('menu').doc(menuId).update({
+          'stok': FieldValue.increment(1)
+        });
+
+        if (existingOrder.quantity > 1) {
+          ordersList[existingOrderIndex] = OrderModel(
+            id: existingOrder.id,
+            menuId: existingOrder.menuId,
+            menuName: existingOrder.menuName,
+            quantity: existingOrder.quantity - 1,
+            price: existingOrder.price,
+            createdAt: existingOrder.createdAt,
+          );
+        } else {
+          ordersList.removeAt(existingOrderIndex);
+        }
       }
+    } catch (e) {
+      print('Error removing from order: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to remove item from order',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
   double get totalAmount {
-    return ordersList.fold(
-        0, (sum, order) => sum + (order.price * order.quantity));
+    return ordersList.fold(0, (sum, order) => sum + (order.price * order.quantity));
   }
 
-  // Method for handling checkout
   Future<void> checkout() async {
-    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    try {
+      // Use a batch to perform all updates atomically
+      final batch = _firestore.batch();
+      bool hasError = false;
 
-    // Looping untuk setiap pesanan yang ada
-    for (var order in ordersList) {
-      final menuDoc = _firestore.collection('menus').doc(order.menuId);
-
-      try {
-        // Mengambil data menu berdasarkan ID
-        DocumentSnapshot docSnapshot = await menuDoc.get();
-        if (docSnapshot.exists) {
-          final currentStok = docSnapshot['stok'];
-
-          if (currentStok >= order.quantity) {
-            // Jika stok cukup, mengurangi stok di Firestore
-            final updatedStok = currentStok - order.quantity;
-
-            await menuDoc.update({'stok': updatedStok});
-
-            // Menampilkan pesan setelah stok berhasil diupdate
-            print(
-                'Stok menu ${order.menuName} berhasil diupdate: $updatedStok');
-          } else {
-            // Jika stok tidak cukup
-            Get.snackbar(
-              'Out of Stock',
-              'Menu ${order.menuName} tidak cukup stok!',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-            );
-          }
-        } else {
-          // Jika menu tidak ditemukan
-          print('Menu tidak ditemukan: ${order.menuId}');
+      // Check stock availability for all items first
+      for (var order in ordersList) {
+        final menuDoc = await _firestore.collection('menu').doc(order.menuId).get();
+        
+        if (!menuDoc.exists) {
+          Get.snackbar(
+            'Error',
+            'Menu ${order.menuName} not found',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          hasError = true;
+          break;
         }
-      } catch (e) {
-        // Jika ada error
-        print('Error saat mengambil atau mengupdate data menu: $e');
-      }
-    }
 
-    // Hapus semua order setelah checkout berhasil
-    ordersList.clear();
-    print('Checkout selesai, semua item telah dihapus.');
+        final currentStock = menuDoc.data()?['stok'] as int;
+        if (currentStock < order.quantity) {
+          Get.snackbar(
+            'Out of Stock',
+            'Not enough stock for ${order.menuName}',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          hasError = true;
+          break;
+        }
+      }
+
+      if (!hasError) {
+        // Process all orders
+        for (var order in ordersList) {
+          final menuRef = _firestore.collection('menu').doc(order.menuId);
+          batch.update(menuRef, {
+            'stok': FieldValue.increment(-order.quantity)
+          });
+        }
+
+        // Commit the batch
+        await batch.commit();
+        
+        // Clear orders after successful checkout
+        ordersList.clear();
+        
+        Get.snackbar(
+          'Success',
+          'Checkout completed successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error during checkout: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to complete checkout',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }
