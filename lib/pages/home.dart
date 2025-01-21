@@ -5,229 +5,194 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:manganjawa/pages/pages_models/menu_model.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
+import 'package:manganjawa/widgets/home_container.dart';
+import 'package:manganjawa/widgets/category_card.dart';
+import 'package:manganjawa/widgets/menu_card.dart';
+import 'package:manganjawa/widgets/edit_delete_dialog.dart';
+import 'package:manganjawa/widgets/edit_menu_dialog.dart';
+import 'package:manganjawa/widgets/add_menu_dialog.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
+class Home extends StatelessWidget {
   final TableMenuController menuController = Get.put(TableMenuController());
-  final ImagePicker _picker = ImagePicker();
 
-  Future<void> _showAddMenuDialog() async {
-    String? kategori;
-    String nama = '';
-    String deskripsi = '';
-    double harga = 0;
-    int stok = 0;
-    File? imageFile;
-
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Pilih Kategori'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                kategori = 'Makanan';
-                Navigator.pop(context);
-              },
-              child: const Text('Makanan'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                kategori = 'Minuman';
-                Navigator.pop(context);
-              },
-              child: const Text('Minuman'),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (kategori != null) {
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Tambah $kategori Baru'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Nama'),
-                  onChanged: (value) => nama = value,
-                ),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Deskripsi'),
-                  onChanged: (value) => deskripsi = value,
-                ),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Harga'),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => harga = double.tryParse(value) ?? 0,
-                ),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Stok'),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => stok = int.tryParse(value) ?? 0,
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () async {
-                {
-                  await menuController.addMenu(
-                    nama,
-                    kategori!,
-                    deskripsi,
-                    harga,
-                    stok,
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Tambah'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  void _showEditMenuDialog(MenuModel menu) async {
-    String nama = menu.nama;
-    String deskripsi = menu.deskripsi;
-    double harga = menu.harga;
-    int stok = menu.stok;
-
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit ${menu.kategori}'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(labelText: 'Nama'),
-                controller: TextEditingController(text: nama),
-                onChanged: (value) => nama = value,
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Deskripsi'),
-                controller: TextEditingController(text: deskripsi),
-                onChanged: (value) => deskripsi = value,
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Harga'),
-                keyboardType: TextInputType.number,
-                controller: TextEditingController(text: harga.toString()),
-                onChanged: (value) => harga = double.tryParse(value) ?? harga,
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Stok'),
-                keyboardType: TextInputType.number,
-                controller: TextEditingController(text: stok.toString()),
-                onChanged: (value) => stok = int.tryParse(value) ?? stok,
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await menuController.updateMenu(
-                menu.id!,
-                nama,
-                menu.kategori,
-                deskripsi,
-                harga,
-                stok,
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
-  }
+  Home({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Menu'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showAddMenuDialog,
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddMenuDialog(context),
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.orange, // Sesuaikan warna sesuai kebutuhan
       ),
-      body: Obx(
-        () => SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Nama')),
-              DataColumn(label: Text('Kategori')),
-              DataColumn(label: Text('Deskripsi')),
-              DataColumn(label: Text('Harga')),
-              DataColumn(label: Text('Stok')),
-              DataColumn(label: Text('Aksi')),
-            ],
-            rows: menuController.menuList.map((menu) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(menu.nama)),
-                  DataCell(Text(menu.kategori)),
-                  DataCell(Text(menu.deskripsi)),
-                  DataCell(Text('Rp ${menu.harga}')),
-                  DataCell(Text('${menu.stok}')),
-                  DataCell(
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            _showEditMenuDialog(menu);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            menuController.deleteMenu(menu.id!);
-                          },
-                        ),
-                      ],
+      body: HomeContainer(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 709,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 111,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              'Mangan Jawa',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontFamily: 'Raleway',
+                                fontWeight: FontWeight.w700,
+                                height: 1.28,
+                                letterSpacing: -0.50,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: const [
+                              CategoryCard(
+                                color: Color(0xFFF5D4C1),
+                                icon: Icons.fastfood,
+                                label: 'Makanan',
+                              ),
+                              SizedBox(width: 16),
+                              CategoryCard(
+                                color: Color(0xFFFDEBC8),
+                                icon: Icons.local_drink,
+                                label: 'Minuman',
+                              ),
+                              SizedBox(width: 16),
+                              CategoryCard(
+                                color: Color(0xFFD0F1EB),
+                                icon: Icons.cake,
+                                label: 'Snack',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                    const SizedBox(height: 16),
+                    const SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        'Food Menu',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontFamily: 'Raleway',
+                          fontWeight: FontWeight.w700,
+                          height: 1.28,
+                          letterSpacing: -0.50,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Obx(
+                        () => ListView.builder(
+                          itemCount: menuController.menuList.length,
+                          itemBuilder: (context, index) {
+                            final menu = menuController.menuList[index];
+                            return GestureDetector(
+                              onLongPress: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => EditDeleteDialog(
+                                    onEdit: () {
+                                      Navigator.pop(context);
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => EditMenuDialog(
+                                          initialName: menu.nama,
+                                          initialDescription: menu.deskripsi,
+                                          initialPrice: menu.harga,
+                                          initialStock: menu.stok,
+                                          onSave: (name, description, price,
+                                              stock) {
+                                            menuController.updateMenu(
+                                              menu.id!,
+                                              name,
+                                              menu.kategori,
+                                              description,
+                                              price,
+                                              stock,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    onDelete: () {
+                                      menuController.deleteMenu(menu.id!);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: MenuCard(
+                                  name: menu.nama,
+                                  description: menu.deskripsi,
+                                  price: menu.harga,
+                                  stock: menu.stok,
+                                  icon: _getIconForCategory(menu.kategori),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  IconData _getIconForCategory(String category) {
+    switch (category) {
+      case 'Makanan':
+        return Icons.fastfood;
+      case 'Minuman':
+        return Icons.local_drink;
+      case 'Snack':
+        return Icons.cake;
+      default:
+        return Icons.fastfood;
+    }
+  }
+
+  void _showAddMenuDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AddMenuDialog(
+        onAdd: (nama, kategori, deskripsi, harga, stok) {
+          menuController.addMenu(nama, kategori, deskripsi, harga, stok);
+        },
       ),
     );
   }
