@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/account/services/auth_service.dart';
+import 'package:manganjawa/services/auth_service.dart';
 
 class ProfileController extends GetxController {
   final AuthService authService = Get.find<AuthService>();

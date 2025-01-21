@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/account/components/mycolors.dart';
-import 'package:manganjawa/controller/navigation_controller.dart';
+import 'package:manganjawa/auth/account/login_components/mycolors.dart';
+import 'package:manganjawa/pages/pages_controller/navigation_controller.dart';
+
 
 class BottomNavBar extends GetView<NavigationController> {
   const BottomNavBar({Key? key}) : super(key: key);

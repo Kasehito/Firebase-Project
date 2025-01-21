@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/account/controller/login_controller.dart';
-import 'package:manganjawa/auth/account/services/auth_service.dart';
-import 'package:manganjawa/controller/navigation_controller.dart';
-import 'package:manganjawa/controller/profile_contoller.dart';
+import 'package:manganjawa/auth/account/login_controller/login_controller.dart';
+import 'package:manganjawa/pages/pages_controller/navigation_controller.dart';
+import 'package:manganjawa/pages/pages_controller/profile_contoller.dart';
+import 'package:manganjawa/services/auth_service.dart';
 
 class NavigationBinding extends Bindings {
   @override

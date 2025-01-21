@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manganjawa/auth/account/login_components/custom_button.dart';
+import 'package:manganjawa/auth/account/login_components/custom_text_field.dart';
+import 'package:manganjawa/auth/account/login_components/divider_or.dart';
+import 'package:manganjawa/auth/account/login_components/social_login_buttons.dart';
+import 'package:manganjawa/auth/account/login_controller/login_controller.dart';
 import 'package:manganjawa/routes/routes.dart';
-import 'components/custom_text_field.dart';
-import 'components/custom_button.dart';
-import 'components/social_login_buttons.dart';
-import 'components/divider_or.dart';
-import 'controller/login_controller.dart';
+
 
 class LoginPage extends StatelessWidget {
   final LoginController loginController = Get.put(LoginController());

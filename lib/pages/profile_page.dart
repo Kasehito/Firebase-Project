@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/account/components/mycolors.dart';
-import 'package:manganjawa/controller/profile_contoller.dart';
+
+import 'package:manganjawa/auth/account/login_components/mycolors.dart';
+
+import 'package:manganjawa/pages/pages_controller/profile_contoller.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({Key? key}) : super(key: key);

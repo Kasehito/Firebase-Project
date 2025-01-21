@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/controller/navigation_controller.dart';
+
 import 'package:manganjawa/pages/home.dart';
 import 'package:manganjawa/pages/orders_page.dart';
+import 'package:manganjawa/pages/pages_controller/navigation_controller.dart';
 import 'package:manganjawa/pages/profile_page.dart';
-import 'package:manganjawa/widget/bottom_navbar.dart';
+import 'package:manganjawa/pages/widget/bottom_navbar.dart';
+
 
 class Homepage extends GetView<NavigationController> {
   const Homepage({Key? key}) : super(key: key);
