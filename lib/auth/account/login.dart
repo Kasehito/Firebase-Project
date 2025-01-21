@@ -104,7 +104,7 @@ class LoginPage extends StatelessWidget {
                                   onApplePressed: () {},
                                 ),
                                 const SizedBox(
-                                    height: 20), // Tambahkan spacing yang tetap
+                                    height: 20), 
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
