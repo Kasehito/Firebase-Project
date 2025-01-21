@@ -108,69 +108,70 @@ class _HomeState extends State<Home> {
       );
     }
   }
-  void _showEditMenuDialog(MenuModel menu) async {
-  String nama = menu.nama;
-  String deskripsi = menu.deskripsi;
-  double harga = menu.harga;
-  int stok = menu.stok;
 
-  await showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Edit ${menu.kategori}'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Nama'),
-              controller: TextEditingController(text: nama),
-              onChanged: (value) => nama = value,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Deskripsi'),
-              controller: TextEditingController(text: deskripsi),
-              onChanged: (value) => deskripsi = value,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Harga'),
-              keyboardType: TextInputType.number,
-              controller: TextEditingController(text: harga.toString()),
-              onChanged: (value) => harga = double.tryParse(value) ?? harga,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Stok'),
-              keyboardType: TextInputType.number,
-              controller: TextEditingController(text: stok.toString()),
-              onChanged: (value) => stok = int.tryParse(value) ?? stok,
-            ),
-            const SizedBox(height: 10),
-          ],
+  void _showEditMenuDialog(MenuModel menu) async {
+    String nama = menu.nama;
+    String deskripsi = menu.deskripsi;
+    double harga = menu.harga;
+    int stok = menu.stok;
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit ${menu.kategori}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: 'Nama'),
+                controller: TextEditingController(text: nama),
+                onChanged: (value) => nama = value,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Deskripsi'),
+                controller: TextEditingController(text: deskripsi),
+                onChanged: (value) => deskripsi = value,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Harga'),
+                keyboardType: TextInputType.number,
+                controller: TextEditingController(text: harga.toString()),
+                onChanged: (value) => harga = double.tryParse(value) ?? harga,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Stok'),
+                keyboardType: TextInputType.number,
+                controller: TextEditingController(text: stok.toString()),
+                onChanged: (value) => stok = int.tryParse(value) ?? stok,
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await menuController.updateMenu(
+                menu.id!,
+                nama,
+                menu.kategori,
+                deskripsi,
+                harga,
+                stok,
+              );
+              Navigator.pop(context);
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Batal'),
-        ),
-        TextButton(
-          onPressed: () async {
-            await menuController.updateMenu(
-              menu.id!,
-              nama,
-              menu.kategori,
-              deskripsi,
-              harga,
-              stok,
-            );
-            Navigator.pop(context);
-          },
-          child: const Text('Simpan'),
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

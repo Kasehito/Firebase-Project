@@ -63,6 +63,9 @@ class TableMenuController extends GetxController {
         stok: stok,
         createdAt: DateTime.now(),
       );
+
+      print('Calling updateMenu with ID: $id');
+
       await _menuService.updateMenu(menu);
     } finally {
       isLoading.value = false;

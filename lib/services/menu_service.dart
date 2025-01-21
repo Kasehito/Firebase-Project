@@ -10,23 +10,12 @@ class MenuService {
   // Create
   Future<void> addMenu(MenuModel menu) async {
     try {
-      // Upload image ke Firebase Storage
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      var lastDoc = await _firestore
-          .collection('menu')
-          .orderBy('id', descending: true)
-          .limit(1)
-          .get();
-      int newId = 1;
-      if (lastDoc.docs.isNotEmpty) {
-        var lastMenu = MenuModel.fromJson(
-            lastDoc.docs.first.data() as Map<String, dynamic>);
-        newId = int.parse(lastMenu.id!) + 1; // Menambahkan 1 ke ID terakhir
-      }
+      // Tentukan ID dokumen secara manual
+      String newId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      // Simpan data ke Firestore
-      DocumentReference docRef = await _firestore.collection('menu').add({
-        'id': newId.toString(),
+      // Simpan data ke Firestore dengan ID yang ditentukan
+      await _firestore.collection('menu').doc(newId).set({
+        'id': newId,
         'nama': menu.nama,
         'kategori': menu.kategori,
         'deskripsi': menu.deskripsi,
@@ -34,6 +23,9 @@ class MenuService {
         'stok': menu.stok,
         'createdAt': DateTime.now(),
       });
+
+      // Update ID di model
+      menu.id = newId;
     } catch (e) {
       rethrow;
     }
@@ -57,8 +49,16 @@ class MenuService {
     try {
       Map<String, dynamic> data = menu.toJson();
 
-      await _firestore.collection('menu').doc(menu.id).update(data);
+      // Tambahkan log untuk memeriksa ID
+      print('Updating document with ID: ${menu.id}');
+
+      // Gunakan metode set dengan merge: true
+      await _firestore
+          .collection('menu')
+          .doc(menu.id)
+          .set(data, SetOptions(merge: true));
     } catch (e) {
+      print('Error updating document: $e');
       rethrow;
     }
   }
