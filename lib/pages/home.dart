@@ -188,13 +188,6 @@ class Home extends StatelessWidget {
                               final OrdersController ordersController =
                                   Get.find<OrdersController>();
                               ordersController.addToOrder(menu);
-                              Get.snackbar(
-                                'Success',
-                                '${menu.nama} added to cart',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.green,
-                                colorText: Colors.white,
-                              );
                             },
                           ),
                         ),

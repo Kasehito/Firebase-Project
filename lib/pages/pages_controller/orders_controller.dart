@@ -24,17 +24,7 @@ class OrdersController extends GetxController {
   Future<void> addToOrder(MenuModel menu) async {
     try {
       final menuDoc = await _firestore.collection('menu').doc(menu.id).get();
-      
-      if (!menuDoc.exists) {
-        Get.snackbar(
-          'Error',
-          'Menu item not found',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return;
-      }
+    
 
       final currentStock = menuDoc.data()?['stok'] as int;
       
@@ -42,16 +32,6 @@ class OrdersController extends GetxController {
       final requestedQuantity = existingOrderIndex != -1 ? 
           ordersList[existingOrderIndex].quantity + 1 : 1;
           
-      if (currentStock < requestedQuantity) {
-        Get.snackbar(
-          'Out of Stock',
-          'Not enough stock available for ${menu.nama}',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return;
-      }
 
       // Update the orders list
       if (existingOrderIndex != -1) {
@@ -90,23 +70,10 @@ class OrdersController extends GetxController {
         // Continue execution even if notification fails
       }
 
-      Get.snackbar(
-        'Success',
-        '${menu.nama} added to cart',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-
+    
     } catch (e) {
       print('Error adding to order: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to add item to order',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      
     }
   }
 
@@ -157,13 +124,7 @@ class OrdersController extends GetxController {
       }
     } catch (e) {
       print('Error removing from order: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to remove item from order',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      
     }
   }
 
@@ -182,26 +143,13 @@ class OrdersController extends GetxController {
         final menuDoc = await _firestore.collection('menu').doc(order.menuId).get();
         
         if (!menuDoc.exists) {
-          Get.snackbar(
-            'Error',
-            'Menu ${order.menuName} not found',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
+          
           hasError = true;
           break;
         }
 
         final currentStock = menuDoc.data()?['stok'] as int;
         if (currentStock < order.quantity) {
-          Get.snackbar(
-            'Out of Stock',
-            'Not enough stock for ${order.menuName}',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
           hasError = true;
           break;
         }
@@ -231,24 +179,9 @@ class OrdersController extends GetxController {
         
         // Clear orders after successful checkout
         ordersList.clear();
-        
-        Get.snackbar(
-          'Success',
-          'Checkout completed successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
       }
     } catch (e) {
       print('Error during checkout: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to complete checkout',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     }
   }
 }
