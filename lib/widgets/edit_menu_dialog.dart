@@ -24,29 +24,50 @@ class EditMenuDialog extends StatelessWidget {
     int stock = initialStock;
 
     return AlertDialog(
-      title: const Text('Edit Menu'),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: const Text(
+        'Edit Menu',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              decoration: const InputDecoration(labelText: 'Nama'),
+              decoration: const InputDecoration(
+                labelText: 'Nama',
+                border: OutlineInputBorder(),
+              ),
               controller: TextEditingController(text: name),
               onChanged: (value) => name = value,
             ),
+            const SizedBox(height: 8),
             TextField(
-              decoration: const InputDecoration(labelText: 'Deskripsi'),
+              decoration: const InputDecoration(
+                labelText: 'Deskripsi',
+                border: OutlineInputBorder(),
+              ),
               controller: TextEditingController(text: description),
               onChanged: (value) => description = value,
             ),
+            const SizedBox(height: 8),
             TextField(
-              decoration: const InputDecoration(labelText: 'Harga'),
+              decoration: const InputDecoration(
+                labelText: 'Harga',
+                border: OutlineInputBorder(),
+              ),
               keyboardType: TextInputType.number,
               controller: TextEditingController(text: price.toString()),
               onChanged: (value) => price = double.tryParse(value) ?? price,
             ),
+            const SizedBox(height: 8),
             TextField(
-              decoration: const InputDecoration(labelText: 'Stok'),
+              decoration: const InputDecoration(
+                labelText: 'Stok',
+                border: OutlineInputBorder(),
+              ),
               keyboardType: TextInputType.number,
               controller: TextEditingController(text: stock.toString()),
               onChanged: (value) => stock = int.tryParse(value) ?? stock,
@@ -57,14 +78,20 @@ class EditMenuDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Batal'),
+          child: const Text(
+            'Batal',
+            style: TextStyle(color: Colors.red),
+          ),
         ),
         TextButton(
           onPressed: () {
             onSave(name, description, price, stock);
             Navigator.pop(context);
           },
-          child: const Text('Simpan'),
+          child: const Text(
+            'Simpan',
+            style: TextStyle(color: Colors.green),
+          ),
         ),
       ],
     );

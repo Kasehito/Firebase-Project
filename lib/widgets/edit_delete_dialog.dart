@@ -13,18 +13,44 @@ class EditDeleteDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Pilih Aksi'),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: const Text(
+        'Pilih Aksi',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton(
             onPressed: onEdit,
-            child: const Text('Edit'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Edit',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: onDelete,
-            child: const Text('Hapus'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Hapus',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
