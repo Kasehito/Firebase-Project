@@ -4,7 +4,7 @@ import 'package:manganjawa/auth/auth_pages/register.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
 import 'package:manganjawa/pages/detail_page.dart';
 import 'package:manganjawa/pages/home.dart';
-import 'package:manganjawa/pages/homepage.dart';
+import 'package:manganjawa/pages/bottom_navigation.dart';
 import 'package:manganjawa/pages/orders_page.dart';
 import 'package:manganjawa/pages/profile_page.dart';
 
@@ -12,7 +12,7 @@ class MyRoutes {
   // Route names as static constants
   static const String login = '/login';
   static const String signup = '/signup';
-  static const String homePage = '/homePage';
+  static const String bottomNavigation = '/bottomNavigation';
   static const String home = '/home';
   static const String ordersPage = '/ordersPage';
   static const String profilePage = '/profilePage';
@@ -31,8 +31,8 @@ class MyRoutes {
       transition: Transition.fadeIn,
     ),
     GetPage(
-      name: homePage,
-      page: () => Homepage(),
+      name: bottomNavigation,
+      page: () => BottomNavigation(),
       binding: NavigationBinding(),
       transition: Transition.fadeIn,
     ),

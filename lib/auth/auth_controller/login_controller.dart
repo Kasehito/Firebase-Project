@@ -17,7 +17,7 @@ class LoginController extends GetxController {
 
   void _checkLoginStatus() async {
     if (await authService.isLoggedIn()) {
-      Get.offAllNamed(MyRoutes.homePage);
+      Get.offAllNamed(MyRoutes.bottomNavigation);
     }
   }
 
@@ -28,7 +28,7 @@ class LoginController extends GetxController {
     try {
       final user = await authService.logIn(email, password);
       if (user != null) {
-        Get.offAllNamed(MyRoutes.homePage);
+        Get.offAllNamed(MyRoutes.bottomNavigation);
       } else {
         Get.snackbar("Error", "Login failed. Please check your credentials.");
       }
@@ -41,7 +41,7 @@ class LoginController extends GetxController {
     try {
       final user = await authService.signInWithGoogle();
       if (user != null) {
-        Get.offAllNamed(MyRoutes.homePage);
+        Get.offAllNamed(MyRoutes.bottomNavigation);
       } else {
         Get.snackbar("Error", "Login failed. Please try again.");
       }

@@ -7,8 +7,8 @@ import 'package:manganjawa/pages/pages_controller/navigation_controller.dart';
 import 'package:manganjawa/pages/profile_page.dart';
 import 'package:manganjawa/pages/widget/bottom_navbar.dart';
 
-class Homepage extends GetView<NavigationController> {
-  const Homepage({Key? key}) : super(key: key);
+class BottomNavigation extends GetView<NavigationController> {
+  const BottomNavigation({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
