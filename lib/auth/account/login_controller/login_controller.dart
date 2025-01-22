@@ -9,6 +9,18 @@ class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  @override
+  void onInit() {
+    super.onInit();
+    _checkLoginStatus();
+  }
+
+  void _checkLoginStatus() async {
+    if (await authService.isLoggedIn()) {
+      Get.offAllNamed(MyRoutes.homePage);
+    }
+  }
+
   void login() async {
     final email = emailController.text;
     final password = passwordController.text;

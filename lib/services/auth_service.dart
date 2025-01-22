@@ -33,7 +33,7 @@ class AuthService {
       );
 
       if (credential.user != null) {
-        await _tokenService.saveUserToken();
+        await _tokenService.saveUserToken(credential.user!.uid);
       }
       return credential.user;
     } on FirebaseAuthException catch (e) {
@@ -61,7 +61,7 @@ class AuthService {
       );
 
       if (credential.user != null) {
-        await _tokenService.saveUserToken();
+        await _tokenService.saveUserToken(credential.user!.uid);
       }
       return credential.user;
     } on FirebaseAuthException catch (e) {
@@ -78,22 +78,29 @@ class AuthService {
 
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
 
-    final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
     if (userCredential.user != null) {
-        await _tokenService.saveUserToken();
-      }
+      await _tokenService.saveUserToken(userCredential.user!.uid);
+    }
     return userCredential;
   }
 
   Future<void> signOut() async {
     await _auth.signOut();
+    await _tokenService.clearUserToken();
     Get.offAllNamed(MyRoutes.login);
+  }
+
+  Future<bool> isLoggedIn() async {
+    return await _tokenService.isLoggedIn();
   }
 }
