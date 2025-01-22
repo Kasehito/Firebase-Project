@@ -67,23 +67,35 @@ class Home extends StatelessWidget {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: const [
+                      children: [
                         CategoryCard(
-                          color: Color(0xFFF5D4C1),
+                          color: const Color(0xFFF5D4C1),
                           icon: Icons.fastfood,
                           label: 'Makanan',
+                          onTap: () {
+                            menuController.selectedCategory.value = 'makanan';
+                            menuController.filterMenuByCategory('makanan');
+                          },
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         CategoryCard(
-                          color: Color(0xFFFDEBC8),
+                          color: const Color(0xFFFDEBC8),
                           icon: Icons.local_drink,
                           label: 'Minuman',
+                          onTap: () {
+                            menuController.selectedCategory.value = 'minuman';
+                            menuController.filterMenuByCategory('minuman');
+                          },
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         CategoryCard(
-                          color: Color(0xFFD0F1EB),
+                          color: const Color(0xFFD0F1EB),
                           icon: Icons.cake,
                           label: 'Snack',
+                          onTap: () {
+                            menuController.selectedCategory.value = 'snack';
+                            menuController.filterMenuByCategory('snack');
+                          },
                         ),
                       ],
                     ),
@@ -106,7 +118,10 @@ class Home extends StatelessWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      menuController.selectedCategory.value = '';
+                      menuController.filterMenuByCategory('');
+                    },
                     child: const Text(
                       'See All',
                       style: TextStyle(
@@ -123,9 +138,9 @@ class Home extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Obx(
                   () => ListView.builder(
-                    itemCount: menuController.menuList.length,
+                    itemCount: menuController.filteredMenuList.length,
                     itemBuilder: (context, index) {
-                      final menu = menuController.menuList[index];
+                      final menu = menuController.filteredMenuList[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: GestureDetector(
@@ -142,7 +157,8 @@ class Home extends StatelessWidget {
                                       initialDescription: menu.deskripsi,
                                       initialPrice: menu.harga,
                                       initialStock: menu.stok,
-                                      onSave: (name, description, price, stock) {
+                                      onSave:
+                                          (name, description, price, stock) {
                                         menuController.updateMenu(
                                           menu.id!,
                                           name,

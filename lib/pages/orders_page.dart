@@ -95,7 +95,8 @@ class OrdersPage extends StatelessWidget {
                               Icons.remove_circle_outline,
                               color: Colors.white,
                             ),
-                            onPressed: () => ordersController.removeOrder(order.menuId),
+                            onPressed: () =>
+                                ordersController.removeOrder(order.menuId),
                           ),
                         ],
                       ),

@@ -7,8 +7,9 @@ import 'package:manganjawa/services/menu_service.dart';
 class TableMenuController extends GetxController {
   final MenuService _menuService = MenuService();
   final RxList<MenuModel> menuList = <MenuModel>[].obs;
+  final RxList<MenuModel> filteredMenuList = <MenuModel>[].obs;
   final RxBool isLoading = false.obs;
-  
+  final RxString selectedCategory = ''.obs;
 
   @override
   void onInit() {
@@ -19,7 +20,19 @@ class TableMenuController extends GetxController {
   void _listenToMenuChanges() {
     _menuService.getMenus().listen((menus) {
       menuList.value = menus;
+      filterMenuByCategory(selectedCategory.value);
     });
+  }
+
+  void filterMenuByCategory(String category) {
+    if (category.isEmpty) {
+      filteredMenuList.value = menuList;
+    } else {
+      filteredMenuList.value = menuList
+          .where(
+              (menu) => menu.kategori.toLowerCase() == category.toLowerCase())
+          .toList();
+    }
   }
 
   Future<void> addMenu(
