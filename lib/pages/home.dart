@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
-import 'package:manganjawa/widgets/add_menu_dialog.dart';
-import 'package:manganjawa/widgets/category_card.dart';
+import 'package:manganjawa/pages/widget/add_menu_dialog.dart';
+import 'package:manganjawa/pages/widget/category_card.dart';
 import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
-import 'package:manganjawa/widgets/edit_delete_dialog.dart';
-import 'package:manganjawa/widgets/edit_menu_dialog.dart';
-import 'package:manganjawa/widgets/home_container.dart';
-import 'package:manganjawa/widgets/menu_card.dart';
+import 'package:manganjawa/pages/widget/edit_delete_dialog.dart';
+import 'package:manganjawa/pages/widget/edit_menu_dialog.dart';
+import 'package:manganjawa/pages/widget/home_container.dart';
+import 'package:manganjawa/pages/widget/menu_card.dart';
 
 class Home extends StatelessWidget {
   final TableMenuController menuController = Get.put(TableMenuController());

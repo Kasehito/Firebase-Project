@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/account/login.dart';
-import 'package:manganjawa/auth/account/register.dart';
+import 'package:manganjawa/auth/auth_pages/login.dart';
+import 'package:manganjawa/auth/auth_pages/register.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
 import 'package:manganjawa/pages/detail_page.dart';
 import 'package:manganjawa/pages/home.dart';

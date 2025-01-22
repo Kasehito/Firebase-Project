@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import 'package:manganjawa/routes/routes.dart';
-import 'package:manganjawa/services/auth_service.dart';
+import 'package:manganjawa/auth/auth_services/auth_service.dart';
 
 class LoginController extends GetxController {
   AuthService authService = Get.put(AuthService());

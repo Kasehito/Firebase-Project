@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:manganjawa/auth/account/login_components/mycolors.dart';
+import 'package:manganjawa/auth/auth_widgets/mycolors.dart';
 
 import 'package:manganjawa/pages/pages_controller/profile_contoller.dart';
 

@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/routes/routes.dart';
-import 'package:manganjawa/services/user_token_service.dart';
+import 'package:manganjawa/auth/auth_services/user_token_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;

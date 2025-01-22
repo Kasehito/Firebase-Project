@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manganjawa/auth/account/login_components/custom_button.dart';
-import 'package:manganjawa/auth/account/login_components/custom_text_field.dart';
-import 'package:manganjawa/auth/account/login_controller/register_controller.dart';
+import 'package:manganjawa/auth/auth_widgets/custom_button.dart';
+import 'package:manganjawa/auth/auth_widgets/custom_text_field.dart';
+import 'package:manganjawa/auth/auth_controller/register_controller.dart';
 
 
 class RegisterPage extends StatelessWidget {
