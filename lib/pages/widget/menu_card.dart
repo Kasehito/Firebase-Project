@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:manganjawa/pages/widget/edit_delete_dialog.dart';
 
-// menu_card.dart
 class MenuCard extends StatelessWidget {
   final String name;
   final String description;
@@ -8,6 +8,8 @@ class MenuCard extends StatelessWidget {
   final int stock;
   final IconData icon;
   final VoidCallback? onAddToOrder;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const MenuCard({
     Key? key,
@@ -17,6 +19,8 @@ class MenuCard extends StatelessWidget {
     required this.stock,
     required this.icon,
     this.onAddToOrder,
+    this.onEdit,
+    this.onDelete,
   }) : super(key: key);
 
   @override
@@ -71,6 +75,22 @@ class MenuCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.more_vert, color: Colors.white),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => EditDeleteDialog(
+                    onEdit: () {
+                      Navigator.pop(context);
+                      if (onEdit != null) onEdit!();
+                    },
+                    onDelete: () {
+                      Navigator.pop(context);
+                      if (onDelete != null) onDelete!();
+                    },
+                  ),
                 ),
               ),
             ],

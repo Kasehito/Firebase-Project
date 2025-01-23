@@ -10,11 +10,6 @@ class AddMenuDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? kategori;
-    String nama = '';
-    String deskripsi = '';
-    double harga = 0;
-    int stok = 0;
 
     return AlertDialog(
       title: const Text('Pilih Kategori',

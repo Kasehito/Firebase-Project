@@ -4,7 +4,6 @@ import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
 import 'package:manganjawa/pages/widget/add_menu_dialog.dart';
 import 'package:manganjawa/pages/widget/category_card.dart';
 import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
-import 'package:manganjawa/pages/widget/edit_delete_dialog.dart';
 import 'package:manganjawa/pages/widget/edit_menu_dialog.dart';
 import 'package:manganjawa/pages/widget/home_container.dart';
 import 'package:manganjawa/pages/widget/menu_card.dart';
@@ -143,60 +142,46 @@ class Home extends StatelessWidget {
                       final menu = menuController.filteredMenuList[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: GestureDetector(
-                          onLongPress: () {
+                        child: MenuCard(
+                          name: menu.nama,
+                          description: menu.deskripsi,
+                          price: menu.harga,
+                          stock: menu.stok,
+                          icon: _getIconForCategory(menu.kategori),
+                          onEdit: () {
                             showDialog(
                               context: context,
-                              builder: (context) => EditDeleteDialog(
-                                onEdit: () {
-                                  Navigator.pop(context);
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => EditMenuDialog(
-                                      initialName: menu.nama,
-                                      initialDescription: menu.deskripsi,
-                                      initialPrice: menu.harga,
-                                      initialStock: menu.stok,
-                                      onSave:
-                                          (name, description, price, stock) {
-                                        menuController.updateMenu(
-                                          menu.id!,
-                                          name,
-                                          menu.kategori,
-                                          description,
-                                          price,
-                                          stock,
-                                        );
-                                      },
-                                    ),
+                              builder: (context) => EditMenuDialog(
+                                initialName: menu.nama,
+                                initialDescription: menu.deskripsi,
+                                initialPrice: menu.harga,
+                                initialStock: menu.stok,
+                                onSave: (name, description, price, stock) {
+                                  menuController.updateMenu(
+                                    menu.id!,
+                                    name,
+                                    menu.kategori,
+                                    description,
+                                    price,
+                                    stock,
                                   );
-                                },
-                                onDelete: () {
-                                  menuController.deleteMenu(menu.id!);
-                                  Navigator.pop(context);
                                 },
                               ),
                             );
                           },
-                          child: MenuCard(
-                            name: menu.nama,
-                            description: menu.deskripsi,
-                            price: menu.harga,
-                            stock: menu.stok,
-                            icon: _getIconForCategory(menu.kategori),
-                            onAddToOrder: () {
-                              final OrdersController ordersController =
-                                  Get.find<OrdersController>();
-                              ordersController.addToOrder(menu);
-                            },
-                          ),
+                          onDelete: () => menuController.deleteMenu(menu.id!),
+                          onAddToOrder: () {
+                            final OrdersController ordersController =
+                                Get.find<OrdersController>();
+                            ordersController.addToOrder(menu);
+                          },
                         ),
                       );
                     },
                   ),
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),
