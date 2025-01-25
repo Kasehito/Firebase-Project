@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class CustomInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -9,6 +10,7 @@ class CustomInputField extends StatelessWidget {
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
   final bool isRequired;
+  final bool isPriceField;
   final int? maxLines;
 
   const CustomInputField({
@@ -20,6 +22,7 @@ class CustomInputField extends StatelessWidget {
     this.keyboardType,
     this.onChanged,
     this.isRequired = true,
+    this.isPriceField = false,
     this.maxLines = 1,
   }) : super(key: key);
 
@@ -43,6 +46,7 @@ class CustomInputField extends StatelessWidget {
           controller: controller,
           maxLines: maxLines,
           decoration: InputDecoration(
+            prefixText: isPriceField ? 'Rp ' : null,
             filled: true,
             fillColor: Colors.grey[200],
             contentPadding:
@@ -72,9 +76,37 @@ class CustomInputField extends StatelessWidget {
             fontSize: 16,
             color: Colors.black87,
           ),
-          validator: validator,
-          inputFormatters: inputFormatters,
-          keyboardType: keyboardType,
+          inputFormatters: isPriceField
+              ? [
+                  FilteringTextInputFormatter.digitsOnly,
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    if (newValue.text.isEmpty) {
+                      return newValue;
+                    }
+                    final number = int.parse(newValue.text);
+                    final formatted =
+                        NumberFormat.decimalPattern('id').format(number);
+                    return TextEditingValue(
+                      text: formatted,
+                      selection:
+                          TextSelection.collapsed(offset: formatted.length),
+                    );
+                  }),
+                ]
+              : inputFormatters,
+          keyboardType: isPriceField ? TextInputType.number : keyboardType,
+          validator: isPriceField
+              ? (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter price';
+                  }
+                  final price = int.parse(value.replaceAll('.', ''));
+                  if (price <= 0) {
+                    return 'Please enter valid price';
+                  }
+                  return null;
+                }
+              : validator,
           onChanged: onChanged,
         ),
       ],

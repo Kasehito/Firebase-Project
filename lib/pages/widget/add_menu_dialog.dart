@@ -105,29 +105,14 @@ class _AddMenuPageState extends State<AddMenuPage> {
               CustomInputField(
                 controller: _priceController,
                 label: 'Price',
+                isPriceField: true,
                 keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty)
                     return 'Please enter price';
-                  }
-                  final price = int.tryParse(value);
-                  if (price == null || price <= 0) {
-                    return 'Please enter valid price';
-                  }
+                  final price = int.parse(value.replaceAll('.', ''));
+                  if (price <= 0) return 'Please enter valid price';
                   return null;
-                },
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    final number = int.tryParse(value) ?? 0;
-                    final formatted = _currencyFormat.format(number);
-                    _priceController.value = TextEditingValue(
-                      text: value,
-                      selection: TextSelection.collapsed(offset: value.length),
-                    );
-                  }
                 },
               ),
               const SizedBox(height: 16),
