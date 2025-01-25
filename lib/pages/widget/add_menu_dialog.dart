@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:manganjawa/auth/auth_widgets/mycolors.dart';
+import 'package:manganjawa/pages/widget/custom_input_field.dart';
 
 class AddMenuPage extends StatefulWidget {
   final Function(String, String, String, double, int) onAdd;
@@ -30,9 +32,16 @@ class _AddMenuPageState extends State<AddMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1A1A1A),
       appBar: AppBar(
-        title: const Text('Add New Menu'),
-        backgroundColor: const Color(0xFFFF9F1C),
+        title: const Text(
+          'Add New Menu',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: AppColors.primary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -45,15 +54,18 @@ class _AddMenuPageState extends State<AddMenuPage> {
                 'Select Category',
                 style: TextStyle(
                   fontSize: 18,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _buildCategoryOption('Makanan', Icons.fastfood, Color(0xFFF5D4C1)),
+                  _buildCategoryOption(
+                      'Makanan', Icons.fastfood, Color(0xFFF5D4C1)),
                   const SizedBox(width: 16),
-                  _buildCategoryOption('Minuman', Icons.local_drink, Color(0xFFFDEBC8)),
+                  _buildCategoryOption(
+                      'Minuman', Icons.local_drink, Color(0xFFFDEBC8)),
                   const SizedBox(width: 16),
                   _buildCategoryOption('Snack', Icons.cake, Color(0xFFD0F1EB)),
                 ],
@@ -67,12 +79,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                   ),
                 ),
               const SizedBox(height: 24),
-              TextFormField(
+              CustomInputField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Name',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter menu name';
@@ -81,12 +90,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomInputField(
                 controller: _descController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Description',
                 maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -96,13 +102,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomInputField(
                 controller: _priceController,
-                decoration: const InputDecoration(
-                  labelText: 'Price',
-                  border: OutlineInputBorder(),
-                  prefixText: 'Rp ',
-                ),
+                label: 'Price',
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -129,12 +131,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomInputField(
                 controller: _stockController,
-                decoration: const InputDecoration(
-                  labelText: 'Stock',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Stock',
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
