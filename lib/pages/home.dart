@@ -26,13 +26,15 @@ class Home extends StatelessWidget {
     }
   }
 
-  void _showAddMenuDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AddMenuDialog(
-        onAdd: (nama, kategori, deskripsi, harga, stok) {
-          menuController.addMenu(nama, kategori, deskripsi, harga, stok);
-        },
+  void _navigateToAddMenu(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddMenuPage(
+          onAdd: (nama, kategori, deskripsi, harga, stok) {
+            menuController.addMenu(nama, kategori, deskripsi, harga, stok);
+          },
+        ),
       ),
     );
   }
@@ -41,7 +43,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddMenuDialog(context),
+        onPressed: () => _navigateToAddMenu(context),
         child: const Icon(Icons.add),
         backgroundColor: const Color(0xFFFF9F1C),
       ),
