@@ -103,7 +103,7 @@ class MenuCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Rp ${price.toStringAsFixed(2)}',
+                    'Rp ${price.toStringAsFixed(3)}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

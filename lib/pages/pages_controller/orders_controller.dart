@@ -24,14 +24,14 @@ class OrdersController extends GetxController {
   Future<void> addToOrder(MenuModel menu) async {
     try {
       final menuDoc = await _firestore.collection('menu').doc(menu.id).get();
-    
 
       final currentStock = menuDoc.data()?['stok'] as int;
-      
-      final existingOrderIndex = ordersList.indexWhere((order) => order.menuId == menu.id);
-      final requestedQuantity = existingOrderIndex != -1 ? 
-          ordersList[existingOrderIndex].quantity + 1 : 1;
-          
+
+      final existingOrderIndex =
+          ordersList.indexWhere((order) => order.menuId == menu.id);
+      final requestedQuantity = existingOrderIndex != -1
+          ? ordersList[existingOrderIndex].quantity + 1
+          : 1;
 
       // Update the orders list
       if (existingOrderIndex != -1) {
@@ -55,9 +55,10 @@ class OrdersController extends GetxController {
       }
 
       // Update stock in Firestore
-      await _firestore.collection('menu').doc(menu.id).update({
-        'stok': currentStock - 1
-      });
+      await _firestore
+          .collection('menu')
+          .doc(menu.id)
+          .update({'stok': currentStock - 1});
 
       // Show notification using try-catch to handle potential notification errors
       try {
@@ -69,25 +70,24 @@ class OrdersController extends GetxController {
         print('Notification error: $notificationError');
         // Continue execution even if notification fails
       }
-
-    
     } catch (e) {
       print('Error adding to order: $e');
-      
     }
   }
 
   Future<void> removeOrder(String menuId) async {
     try {
-      final existingOrderIndex = ordersList.indexWhere((order) => order.menuId == menuId);
-      
+      final existingOrderIndex =
+          ordersList.indexWhere((order) => order.menuId == menuId);
+
       if (existingOrderIndex != -1) {
         final existingOrder = ordersList[existingOrderIndex];
-        
+
         // Update stock in Firestore (increase by 1)
-        await _firestore.collection('menu').doc(menuId).update({
-          'stok': FieldValue.increment(1)
-        });
+        await _firestore
+            .collection('menu')
+            .doc(menuId)
+            .update({'stok': FieldValue.increment(1)});
 
         if (existingOrder.quantity > 1) {
           ordersList[existingOrderIndex] = OrderModel(
@@ -98,7 +98,7 @@ class OrdersController extends GetxController {
             price: existingOrder.price,
             createdAt: existingOrder.createdAt,
           );
-          
+
           // Show notification for reducing quantity
           try {
             await _notificationService.showLocalNotification(
@@ -110,7 +110,7 @@ class OrdersController extends GetxController {
           }
         } else {
           ordersList.removeAt(existingOrderIndex);
-          
+
           // Show notification for removing item
           try {
             await _notificationService.showLocalNotification(
@@ -124,12 +124,13 @@ class OrdersController extends GetxController {
       }
     } catch (e) {
       print('Error removing from order: $e');
-      
     }
   }
 
-  double get totalAmount {
-    return ordersList.fold(0, (sum, order) => sum + (order.price * order.quantity));
+  double? get totalAmount {
+    if (ordersList.isEmpty) return null;
+    return ordersList.fold<double>(
+        0, (sum, order) => sum + (order.price * order.quantity));
   }
 
   Future<void> checkout() async {
@@ -140,10 +141,10 @@ class OrdersController extends GetxController {
 
       // Check stock availability for all items first
       for (var order in ordersList) {
-        final menuDoc = await _firestore.collection('menu').doc(order.menuId).get();
-        
+        final menuDoc =
+            await _firestore.collection('menu').doc(order.menuId).get();
+
         if (!menuDoc.exists) {
-          
           hasError = true;
           break;
         }
@@ -157,16 +158,10 @@ class OrdersController extends GetxController {
 
       if (!hasError) {
         // Process all orders
-        for (var order in ordersList) {
-          final menuRef = _firestore.collection('menu').doc(order.menuId);
-          batch.update(menuRef, {
-            'stok': FieldValue.increment(-order.quantity)
-          });
-        }
 
         // Commit the batch
         await batch.commit();
-        
+
         // Show checkout completion notification
         try {
           await _notificationService.showLocalNotification(
@@ -176,7 +171,7 @@ class OrdersController extends GetxController {
         } catch (notificationError) {
           print('Notification error: $notificationError');
         }
-        
+
         // Clear orders after successful checkout
         ordersList.clear();
       }

@@ -83,7 +83,7 @@ class OrdersPage extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'Rp ${(order.price * order.quantity).toStringAsFixed(2)}',
+                            'Rp ${(order.price * order.quantity).toStringAsFixed(3)}',
                             style: const TextStyle(
                               color: Color(0xFFFF9F1C),
                               fontSize: 16,
@@ -133,7 +133,7 @@ class OrdersPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Rp ${ordersController.totalAmount.toStringAsFixed(2)}',
+                      'Rp ${ordersController.totalAmount?.toStringAsFixed(3) ?? '0'}',
                       style: const TextStyle(
                         color: Color(0xFFFF9F1C),
                         fontSize: 20,
