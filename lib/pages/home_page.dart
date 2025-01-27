@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
-import 'package:manganjawa/pages/widget/add_menu_dialog.dart';
+import 'package:manganjawa/pages/menu_editor_page.dart'; 
 import 'package:manganjawa/pages/widget/category_card.dart';
 import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
-import 'package:manganjawa/pages/widget/edit_menu_dialog.dart';
 import 'package:manganjawa/pages/widget/home_container.dart';
 import 'package:manganjawa/pages/widget/menu_card.dart';
 
@@ -26,14 +25,30 @@ class Home extends StatelessWidget {
     }
   }
 
-  void _navigateToAddMenu(BuildContext context) {
+  void _navigateToMenuEditor(BuildContext context,
+      {String? id,
+      String? name,
+      String? description,
+      String? category,
+      double? price,
+      int? stock}) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddMenuPage(
-          onAdd: (nama, kategori, deskripsi, harga, stok) {
-            menuController.addMenu(nama, kategori, deskripsi, harga, stok);
+        builder: (context) => MenuEditor(
+          onSave: (nama, kategori, deskripsi, harga, stok) {
+            if (id == null) {
+              menuController.addMenu(nama, kategori, deskripsi, harga, stok);
+            } else {
+              menuController.updateMenu(
+                  id, nama, kategori, deskripsi, harga, stok);
+            }
           },
+          initialName: name,
+          initialDescription: description,
+          initialCategory: category,
+          initialPrice: price,
+          initialStock: stock,
         ),
       ),
     );
@@ -43,7 +58,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToAddMenu(context),
+        onPressed: () => _navigateToMenuEditor(context),
         child: const Icon(Icons.add),
         backgroundColor: const Color(0xFFFF9F1C),
       ),
@@ -151,24 +166,14 @@ class Home extends StatelessWidget {
                           stock: menu.stok,
                           icon: _getIconForCategory(menu.kategori),
                           onEdit: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => EditMenuDialog(
-                                initialName: menu.nama,
-                                initialDescription: menu.deskripsi,
-                                initialPrice: menu.harga,
-                                initialStock: menu.stok,
-                                onSave: (name, description, price, stock) {
-                                  menuController.updateMenu(
-                                    menu.id!,
-                                    name,
-                                    menu.kategori,
-                                    description,
-                                    price,
-                                    stock,
-                                  );
-                                },
-                              ),
+                            _navigateToMenuEditor(
+                              context,
+                              id: menu.id,
+                              name: menu.nama,
+                              description: menu.deskripsi,
+                              category: menu.kategori,
+                              price: menu.harga,
+                              stock: menu.stok,
                             );
                           },
                           onDelete: () => menuController.deleteMenu(menu.id!),

@@ -4,19 +4,29 @@ import 'package:intl/intl.dart';
 import 'package:manganjawa/auth/auth_widgets/mycolors.dart';
 import 'package:manganjawa/pages/widget/custom_input_field.dart';
 
-class AddMenuPage extends StatefulWidget {
-  final Function(String, String, String, double, int) onAdd;
+class MenuEditor extends StatefulWidget {
+  final Function(String, String, String, double, int) onSave;
+  final String? initialName;
+  final String? initialDescription;
+  final String? initialCategory;
+  final double? initialPrice;
+  final int? initialStock;
 
-  const AddMenuPage({
+  const MenuEditor({
     Key? key,
-    required this.onAdd,
+    required this.onSave,
+    this.initialName,
+    this.initialDescription,
+    this.initialCategory,
+    this.initialPrice,
+    this.initialStock,
   }) : super(key: key);
 
   @override
-  State<AddMenuPage> createState() => _AddMenuPageState();
+  State<MenuEditor> createState() => _MenuEditorPageState();
 }
 
-class _AddMenuPageState extends State<AddMenuPage> {
+class _MenuEditorPageState extends State<MenuEditor> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedCategory;
   final _nameController = TextEditingController();
@@ -30,13 +40,23 @@ class _AddMenuPageState extends State<AddMenuPage> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategory;
+    _nameController.text = widget.initialName ?? '';
+    _descController.text = widget.initialDescription ?? '';
+    _priceController.text = widget.initialPrice?.toString() ?? '';
+    _stockController.text = widget.initialStock?.toString() ?? '';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A1A),
       appBar: AppBar(
-        title: const Text(
-          'Add New Menu',
-          style: TextStyle(
+        title: Text(
+          widget.initialName == null ? 'Add New Menu' : 'Edit Menu',
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -62,12 +82,12 @@ class _AddMenuPageState extends State<AddMenuPage> {
               Row(
                 children: [
                   _buildCategoryOption(
-                      'Makanan', Icons.fastfood, Color(0xFFF5D4C1)),
+                      'Makanan', Icons.fastfood, const Color(0xFFF5D4C1)),
                   const SizedBox(width: 16),
                   _buildCategoryOption(
-                      'Minuman', Icons.local_drink, Color(0xFFFDEBC8)),
+                      'Minuman', Icons.local_drink, const Color(0xFFFDEBC8)),
                   const SizedBox(width: 16),
-                  _buildCategoryOption('Snack', Icons.cake, Color(0xFFD0F1EB)),
+                  _buildCategoryOption('Snack', Icons.cake, const Color(0xFFD0F1EB)),
                 ],
               ),
               if (_selectedCategory == null)
@@ -143,9 +163,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF9F1C),
                   ),
-                  child: const Text(
-                    'Add Menu',
-                    style: TextStyle(
+                  child: Text(
+                    widget.initialName == null ? 'Add Menu' : 'Save Changes',
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
                     ),
@@ -198,7 +218,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
     }
 
     if (_formKey.currentState!.validate()) {
-      widget.onAdd(
+      widget.onSave(
         _nameController.text,
         _selectedCategory!,
         _descController.text,

@@ -3,7 +3,7 @@ import 'package:manganjawa/auth/auth_pages/login.dart';
 import 'package:manganjawa/auth/auth_pages/register.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
 import 'package:manganjawa/pages/detail_page.dart';
-import 'package:manganjawa/pages/home.dart';
+import 'package:manganjawa/pages/home_page.dart';
 import 'package:manganjawa/pages/bottom_navigation.dart';
 import 'package:manganjawa/pages/orders_page.dart';
 import 'package:manganjawa/pages/profile_page.dart';
