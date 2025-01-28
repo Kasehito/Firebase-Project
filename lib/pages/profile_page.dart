@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:image_picker/image_picker.dart';
 import 'package:manganjawa/auth/auth_widgets/mycolors.dart';
-
 import 'package:manganjawa/pages/pages_controller/profile_contoller.dart';
+import 'dart:io';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({Key? key}) : super(key: key);
@@ -49,28 +49,47 @@ class ProfilePage extends GetView<ProfileController> {
 
   Widget _buildProfilePicture() {
     return Center(
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          color: Colors.orange,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.orange, width: 2),
-        ),
-        child: const Icon(
-          Icons.person,
-          size: 60,
-          color: AppColors.textColor,
-        ),
+      child: GestureDetector(
+        onTap: () async {
+          final ImagePicker _picker = ImagePicker();
+          final XFile? image =
+              await _picker.pickImage(source: ImageSource.gallery);
+          if (image != null) {
+            controller.updateProfileImage(image.path);
+          }
+        },
+        child: Obx(() => Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.orange, width: 2),
+              ),
+              child: controller.profileImagePath.isNotEmpty
+                  ? ClipOval(
+                      child: Image.file(
+                        File(controller.profileImagePath.value),
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.person,
+                      size: 60,
+                      color: AppColors.textColor,
+                    ),
+            )),
       ),
     );
   }
 
   Widget _buildNameCard(BuildContext context) {
-    return SizedBox(  
-      width: double.infinity, 
+    return SizedBox(
+      width: double.infinity,
       child: Card(
-        margin: EdgeInsets.zero,  
+        margin: EdgeInsets.zero,
         color: Colors.grey[900],
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -90,7 +109,8 @@ class ProfilePage extends GetView<ProfileController> {
                         child: controller.isEditing.value
                             ? TextField(
                                 controller: controller.nameController,
-                                style: const TextStyle(color: AppColors.textColor),
+                                style:
+                                    const TextStyle(color: AppColors.textColor),
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
                                 ),
@@ -108,7 +128,7 @@ class ProfilePage extends GetView<ProfileController> {
                           controller.isEditing.value ? Icons.check : Icons.edit,
                           color: AppColors.secondary,
                         ),
-                        onPressed: controller.toggleEditing,
+                        onPressed: controller.toggleUsernameEditing,
                       ),
                     ],
                   )),
@@ -120,10 +140,10 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   Widget _buildEmailCard(BuildContext context) {
-    return SizedBox(  
-      width: double.infinity,  
+    return SizedBox(
+      width: double.infinity,
       child: Card(
-        margin: EdgeInsets.zero,  
+        margin: EdgeInsets.zero,
         color: Colors.grey[900],
         child: Padding(
           padding: const EdgeInsets.all(16.0),
