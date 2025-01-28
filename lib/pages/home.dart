@@ -44,13 +44,14 @@ class Home extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToAddMenu(context),
-        child: const Icon(Icons.add),
         backgroundColor: const Color(0xFFFF9F1C),
+        child: const Icon(Icons.add),
       ),
       body: HomeContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            //Category
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -105,6 +106,7 @@ class Home extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            //Menu Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -133,7 +135,7 @@ class Home extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            //Menu
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
