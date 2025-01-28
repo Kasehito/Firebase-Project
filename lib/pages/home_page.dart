@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
-import 'package:manganjawa/pages/menu_editor_page.dart'; 
+import 'package:manganjawa/pages/menu_editor_page.dart';
 import 'package:manganjawa/pages/widget/category_card.dart';
 import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
 import 'package:manganjawa/pages/widget/home_container.dart';
@@ -59,13 +59,14 @@ class Home extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToMenuEditor(context),
-        child: const Icon(Icons.add),
         backgroundColor: const Color(0xFFFF9F1C),
+        child: const Icon(Icons.add),
       ),
       body: HomeContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            //Category
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -120,6 +121,7 @@ class Home extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            //Menu Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -148,7 +150,7 @@ class Home extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            //Menu
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

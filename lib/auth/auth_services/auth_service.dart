@@ -24,6 +24,18 @@ class AuthService {
     }
   }
 
+  Future<void> updateProfilePicture(String newUrl) async {
+    try {
+      User? user = getCurrentUser();
+      if (user != null) {
+        await user.updatePhotoURL(newUrl);
+        Get.snackbar("Success", "Profile picture updated successfully");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to update profile picture: ${e.toString()}");
+    }
+  }
+
   Future<User?> signUp(String emailAddress, String password) async {
     try {
       final UserCredential credential =

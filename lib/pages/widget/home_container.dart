@@ -8,9 +8,7 @@ class HomeContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 375,
-      height: 812,
-      padding: const EdgeInsets.only(top: 60, bottom: 43),
+      padding: EdgeInsets.only(top: 40),
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(color: Color(0xFF393939)),
       child: child,

@@ -19,6 +19,7 @@ class EditDeleteDialog extends StatelessWidget {
       title: const Text(
         'Pilih Aksi',
         style: TextStyle(fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -39,7 +40,32 @@ class EditDeleteDialog extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: onDelete,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Konfirmasi'),
+                    content: const Text('Apakah Anda yakin ingin menghapus?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Batal'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          onDelete();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Hapus'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               padding: const EdgeInsets.symmetric(vertical: 12),
