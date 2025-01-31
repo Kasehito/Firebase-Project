@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:manganjawa/auth/auth_pages/login.dart';
 import 'package:manganjawa/auth/auth_pages/register.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
-import 'package:manganjawa/pages/detail_page.dart';
+import 'package:manganjawa/pages/admin_page.dart';
 import 'package:manganjawa/pages/home_page.dart';
 import 'package:manganjawa/pages/bottom_navigation.dart';
 import 'package:manganjawa/pages/orders_page.dart';
@@ -16,7 +16,7 @@ class MyRoutes {
   static const String home = '/home';
   static const String ordersPage = '/ordersPage';
   static const String profilePage = '/profilePage';
-  static const String detailPage = '/detailPage';
+  static const String adminPage = '/adminPage';
 
   // List of GetPages for GetX navigation
   static final pageRoutes = [
@@ -53,8 +53,8 @@ class MyRoutes {
       transition: Transition.fadeIn,
     ),
     GetPage(
-      name: detailPage,
-      page: () => DetailPage(),
+      name: adminPage,
+      page: () => AdminPage(),
       transition: Transition.fadeIn,
     ),
   ];
