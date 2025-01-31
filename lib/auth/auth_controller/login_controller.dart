@@ -44,7 +44,7 @@ class LoginController extends GetxController {
       if (user != null) {
         final adminEmail = await getAdminEmail();
         if (email == adminEmail) {
-          Get.offAllNamed(MyRoutes.adminPage);
+          Get.offAllNamed(MyRoutes.bottomNavigation);
         } else {
           Get.offAllNamed(MyRoutes.bottomNavigation);
         }
