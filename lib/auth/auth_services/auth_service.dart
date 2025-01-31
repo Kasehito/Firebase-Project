@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
@@ -7,10 +8,23 @@ import 'package:manganjawa/auth/auth_services/user_token_service.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final UserTokenService _tokenService = UserTokenService();
+  final RxBool _isAdmin = false.obs;
+  bool get isAdmin => _isAdmin.value;
 
   User? getCurrentUser() {
     return _auth.currentUser;
   }
+
+  Future<void> checkAdminStatus(String email) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('config').doc('admin').get();
+      _isAdmin.value = doc.exists && doc['admin_email'] == email;
+    } catch (e) {
+      print('Error checking admin status: $e');
+      _isAdmin.value = false;
+    }
+  }
+
 
   Future<void> updateUserName(String newName) async {
     try {

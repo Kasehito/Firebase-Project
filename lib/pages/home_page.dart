@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manganjawa/auth/auth_services/auth_service.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
 import 'package:manganjawa/pages/menu_editor_page.dart';
 import 'package:manganjawa/pages/widget/category_card.dart';
@@ -9,6 +10,7 @@ import 'package:manganjawa/pages/widget/menu_card.dart';
 
 class Home extends StatelessWidget {
   final TableMenuController menuController = Get.put(TableMenuController());
+  final AuthService authService = Get.find<AuthService>();
 
   Home({super.key});
 
@@ -57,11 +59,13 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToMenuEditor(context),
-        backgroundColor: const Color(0xFFFF9F1C),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: authService.isAdmin
+          ? FloatingActionButton(
+              onPressed: () => _navigateToMenuEditor(context),
+              backgroundColor: const Color(0xFFFF9F1C),
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: HomeContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,18 +171,22 @@ class Home extends StatelessWidget {
                           price: menu.harga,
                           stock: menu.stok,
                           icon: _getIconForCategory(menu.kategori),
-                          onEdit: () {
-                            _navigateToMenuEditor(
-                              context,
-                              id: menu.id,
-                              name: menu.nama,
-                              description: menu.deskripsi,
-                              category: menu.kategori,
-                              price: menu.harga,
-                              stock: menu.stok,
-                            );
-                          },
-                          onDelete: () => menuController.deleteMenu(menu.id!),
+                          onEdit: authService.isAdmin
+                              ? () {
+                                  _navigateToMenuEditor(
+                                    context,
+                                    id: menu.id,
+                                    name: menu.nama,
+                                    description: menu.deskripsi,
+                                    category: menu.kategori,
+                                    price: menu.harga,
+                                    stock: menu.stok,
+                                  );
+                                }
+                              : null,
+                          onDelete: authService.isAdmin
+                              ? () => menuController.deleteMenu(menu.id!)
+                              : null,
                           onAddToOrder: () {
                             final OrdersController ordersController =
                                 Get.find<OrdersController>();
