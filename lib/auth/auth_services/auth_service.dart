@@ -17,14 +17,16 @@ class AuthService {
 
   Future<void> checkAdminStatus(String email) async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('config').doc('admin').get();
+      final doc = await FirebaseFirestore.instance
+          .collection('config')
+          .doc('admin')
+          .get();
       _isAdmin.value = doc.exists && doc['admin_email'] == email;
     } catch (e) {
       print('Error checking admin status: $e');
       _isAdmin.value = false;
     }
   }
-
 
   Future<void> updateUserName(String newName) async {
     try {
@@ -46,7 +48,8 @@ class AuthService {
         Get.snackbar("Success", "Profile picture updated successfully");
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to update profile picture: ${e.toString()}");
+      Get.snackbar(
+          "Error", "Failed to update profile picture: ${e.toString()}");
     }
   }
 
@@ -121,8 +124,9 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
     await _tokenService.clearUserToken();
+    await _auth.signOut();
+    _isAdmin.value = false;
     Get.offAllNamed(MyRoutes.login);
   }
 

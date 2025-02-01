@@ -11,7 +11,7 @@ class OrdersController extends GetxController {
   late NotificationService _notificationService;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     // Try to find NotificationService, if not found, create new instance
     try {
@@ -19,6 +19,7 @@ class OrdersController extends GetxController {
     } catch (e) {
       _notificationService = Get.put(NotificationService(), permanent: true);
     }
+    await _notificationService.initialize();
   }
 
   Future<void> addToOrder(MenuModel menu) async {

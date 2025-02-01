@@ -16,11 +16,7 @@ class NotificationService extends GetxService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  NotificationService() {
-    init();
-  }
-
-  Future<void> init() async {
+  Future<void> initialize() async {
     try {
       // Request permission for notifications
       await _firebaseMessaging.requestPermission(

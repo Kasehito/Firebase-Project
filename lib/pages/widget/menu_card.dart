@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:manganjawa/auth/auth_services/auth_service.dart';
 import 'package:manganjawa/pages/widget/edit_delete_dialog.dart';
 
 class MenuCard extends StatelessWidget {
+  final AuthService authService = Get.find<AuthService>();
   final String name;
   final String description;
   final double price;
   final int stock;
-  final IconData icon;
+  final IconData? icon;
   final VoidCallback? onAddToOrder;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
-  const MenuCard({
+  MenuCard({
     Key? key,
     required this.name,
     required this.description,
@@ -76,9 +80,9 @@ class MenuCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
+              ), if(authService.isAdmin)
               IconButton(
-                icon: const Icon(Icons.more_vert, color: Colors.white),
+                icon: Icon(Icons.more_vert, color: Colors.white),
                 onPressed: () => showDialog(
                   context: context,
                   builder: (context) => EditDeleteDialog(
