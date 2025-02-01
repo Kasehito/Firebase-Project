@@ -5,6 +5,8 @@ import 'package:manganjawa/auth/auth_widgets/mycolors.dart';
 import 'package:manganjawa/pages/pages_controller/profile_contoller.dart';
 import 'dart:io';
 
+import 'package:manganjawa/routes/routes.dart';
+
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -27,7 +29,7 @@ class ProfilePage extends GetView<ProfileController> {
               const SizedBox(height: 16),
               _buildEmailCard(context),
               const Spacer(),
-              _buildLogoutButton(),
+              _buildActionButtons(),
             ],
           ),
         ),
@@ -171,25 +173,58 @@ class ProfilePage extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildLogoutButton() {
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        _buildButton(
+          'History Checkout',
+          Icons.history,
+          Colors.orange,
+          () => Get.toNamed(MyRoutes.orderHistoryPage),
+        ),
+        const SizedBox(height: 16),
+        _buildButton(
+          'Logout',
+          Icons.logout,
+          Colors.red,
+          () => controller.logout(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButton(
+    String text,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () => controller.logout(),
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
+          backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
+          elevation: 2,
         ),
-        child: const Text(
-          'Logout',
-          style: TextStyle(
-            color: AppColors.textColor,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.textColor),
+            const SizedBox(width: 12),
+            Text(
+              text,
+              style: const TextStyle(
+                color: AppColors.textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

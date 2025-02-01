@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class OrdersController extends GetxController {
       _notificationService = Get.put(NotificationService(), permanent: true);
     }
     await _notificationService.initialize();
+    await deleteOldOrders();
     loadSavedOrders();
     listenToOrders();
   }
@@ -31,7 +33,7 @@ class OrdersController extends GetxController {
       _firestore
           .collection('users')
           .doc(userId)
-          .collection('menu')  // Using 'menu' as per your database structure
+          .collection('menu')
           .orderBy('createdAt', descending: true)
           .snapshots()
           .listen(
@@ -57,7 +59,7 @@ class OrdersController extends GetxController {
         final snapshot = await _firestore
             .collection('users')
             .doc(userId)
-            .collection('menu')  // Using 'menu' as per your database structure
+            .collection('menu')
             .orderBy('createdAt', descending: true)
             .get();
 
@@ -74,131 +76,183 @@ class OrdersController extends GetxController {
   }
 
   Future<void> addToOrder(MenuModel menu) async {
-    try {
-      final userId = _auth.currentUser?.uid;
-      if (userId == null) {
-        Get.snackbar('Error', 'Please login to add items to menu');
-        return;
-      }
+    int retryCount = 0;
+    const maxRetries = 3;
+    const timeout = Duration(seconds: 10);
 
-      // Check stock first
-      final menuDoc = await _firestore.collection('menu').doc(menu.id).get();
-      if (!menuDoc.exists) {
-        Get.snackbar('Error', 'Menu item not found');
-        return;
-      }
-
-      final currentStock = menuDoc.data()?['stok'] as int;
-      if (currentStock <= 0) {
-        Get.snackbar('Error', 'Item out of stock');
-        return;
-      }
-
-      // Reference to user's menu collection
-      final userMenuRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('menu');
-
-      // Start a transaction
-      await _firestore.runTransaction((transaction) async {
-        // Check for existing order
-        final existingOrderQuery = await userMenuRef
-            .where('menuId', isEqualTo: menu.id)
-            .get();
-
-        if (existingOrderQuery.docs.isNotEmpty) {
-          // Update existing order
-          final existingDoc = existingOrderQuery.docs.first;
-          final currentQuantity = existingDoc.data()['quantity'] as int;
-          
-          await userMenuRef.doc(existingDoc.id).update({
-            'quantity': currentQuantity + 1,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-        } else {
-          // Create new order
-          await userMenuRef.add({
-            'menuId': menu.id,
-            'menuName': menu.nama,
-            'quantity': 1,
-            'price': menu.harga,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+    while (retryCount < maxRetries) {
+      try {
+        final userId = _auth.currentUser?.uid;
+        if (userId == null) {
+          Get.snackbar('Error', 'Please login to add items to menu');
+          return;
         }
 
-        // Update stock
-        await _firestore
-            .collection('menu')
-            .doc(menu.id)
-            .update({
-          'stok': FieldValue.increment(-1)
-        });
-      });
+        // Use timeout for the entire operation
+        final result = await Future.any([
+          _processOrder(userId, menu),
+          Future.delayed(timeout)
+              .then((_) => throw TimeoutException('Operation timed out')),
+        ]);
 
-      // Show notification
-      await _notificationService.showLocalNotification(
-        title: 'Added to Menu',
-        body: '${menu.nama} has been added',
-      );
-    } catch (e) {
-      print('Error adding to order: $e');
-      Get.snackbar('Error', 'Failed to add item to menu');
+        // If successful, show notification and return
+        await _notificationService.showLocalNotification(
+          title: 'Added to Menu',
+          body: '${menu.nama} has been added',
+        );
+        return;
+      } on TimeoutException {
+        retryCount++;
+        if (retryCount >= maxRetries) {
+          Get.snackbar(
+            'Error',
+            'Operation timed out. Please try again later',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          break;
+        }
+        // Wait before retrying
+        await Future.delayed(Duration(seconds: 1 * retryCount));
+        continue;
+      } catch (e) {
+        print('Error adding to order: $e');
+        Get.snackbar(
+          'Error',
+          'Failed to add item to menu. Please try again',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        break;
+      }
     }
   }
 
-  Future<void> removeOrder(String menuId) async {
-    try {
-      final userId = _auth.currentUser?.uid;
-      if (userId == null) return;
+  Future<void> _processOrder(String userId, MenuModel menu) async {
+    // Check stock first
+    final menuDoc = await _firestore.collection('menu').doc(menu.id).get();
+    if (!menuDoc.exists) {
+      throw Exception('Menu item not found');
+    }
 
-      final userMenuRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('menu');
+    final currentStock = menuDoc.data()?['stok'] as int;
+    if (currentStock <= 0) {
+      throw Exception('Item out of stock');
+    }
 
-      final orderQuery = await userMenuRef
-          .where('menuId', isEqualTo: menuId)
-          .get();
+    // Reference to user's menu collection
+    final userMenuRef =
+        _firestore.collection('users').doc(userId).collection('menu');
 
-      if (orderQuery.docs.isNotEmpty) {
-        final orderDoc = orderQuery.docs.first;
-        final currentQuantity = orderDoc.data()['quantity'] as int;
-        final menuName = orderDoc.data()['menuName'] as String;
+    // Start a transaction
+    return _firestore.runTransaction((transaction) async {
+      final existingOrderQuery =
+          await userMenuRef.where('menuId', isEqualTo: menu.id).get();
 
-        // Start transaction
-        await _firestore.runTransaction((transaction) async {
-          if (currentQuantity > 1) {
-            // Decrease quantity
-            await userMenuRef.doc(orderDoc.id).update({
-              'quantity': currentQuantity - 1,
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
-          } else {
-            // Remove item
-            await userMenuRef.doc(orderDoc.id).delete();
-          }
+      if (existingOrderQuery.docs.isNotEmpty) {
+        final existingDoc = existingOrderQuery.docs.first;
+        final currentQuantity = existingDoc.data()['quantity'] as int;
 
-          // Update stock
-          await _firestore
-              .collection('menu')
-              .doc(menuId)
-              .update({
-            'stok': FieldValue.increment(1)
-          });
+        transaction.update(userMenuRef.doc(existingDoc.id), {
+          'quantity': currentQuantity + 1,
+          'updatedAt': FieldValue.serverTimestamp(),
         });
-
-        // Show notification
-        await _notificationService.showLocalNotification(
-          title: 'Menu Updated',
-          body: currentQuantity > 1
-              ? 'Decreased quantity of $menuName'
-              : '$menuName removed from menu',
-        );
+      } else {
+        final newOrderRef = userMenuRef.doc();
+        transaction.set(newOrderRef, {
+          'menuId': menu.id,
+          'menuName': menu.nama,
+          'quantity': 1,
+          'price': menu.harga,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
       }
-    } catch (e) {
-      print('Error removing from order: $e');
-      Get.snackbar('Error', 'Failed to remove item from menu');
+
+      transaction.update(
+        _firestore.collection('menu').doc(menu.id),
+        {'stok': FieldValue.increment(-1)},
+      );
+    }).timeout(
+      const Duration(seconds: 5),
+      onTimeout: () {
+        throw TimeoutException('Transaction timed out');
+      },
+    );
+  }
+
+  Future<void> removeOrder(String menuId) async {
+    int retryCount = 0;
+    const maxRetries = 3;
+
+    while (retryCount < maxRetries) {
+      try {
+        final userId = _auth.currentUser?.uid;
+        if (userId == null) return;
+
+        final userMenuRef =
+            _firestore.collection('users').doc(userId).collection('menu');
+        final orderQuery =
+            await userMenuRef.where('menuId', isEqualTo: menuId).get();
+
+        if (orderQuery.docs.isNotEmpty) {
+          final orderDoc = orderQuery.docs.first;
+          final currentQuantity = orderDoc.data()['quantity'] as int;
+          final menuName = orderDoc.data()['menuName'] as String;
+
+          // Start transaction with timeout
+          await _firestore.runTransaction((transaction) async {
+            if (currentQuantity > 1) {
+              transaction.update(userMenuRef.doc(orderDoc.id), {
+                'quantity': currentQuantity - 1,
+                'updatedAt': FieldValue.serverTimestamp(),
+              });
+            } else {
+              transaction.delete(orderDoc.reference);
+            }
+
+            transaction.update(
+              _firestore.collection('menu').doc(menuId),
+              {'stok': FieldValue.increment(1)},
+            );
+          }).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              throw TimeoutException('Transaction timed out');
+            },
+          );
+
+          await _notificationService.showLocalNotification(
+            title: 'Menu Updated',
+            body: currentQuantity > 1
+                ? 'Decreased quantity of $menuName'
+                : '$menuName removed from menu',
+          );
+          return; // Success - exit the retry loop
+        }
+      } on TimeoutException {
+        retryCount++;
+        if (retryCount >= maxRetries) {
+          Get.snackbar(
+            'Error',
+            'Operation timed out. Please try again later',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          break;
+        }
+        // Wait before retrying
+        await Future.delayed(Duration(seconds: 1 * retryCount));
+        continue;
+      } catch (e) {
+        print('Error removing from order: $e');
+        Get.snackbar(
+          'Error',
+          'Failed to remove item from menu',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        break;
+      }
     }
   }
 
@@ -217,11 +271,9 @@ class OrdersController extends GetxController {
 
       // Start batch write
       final batch = _firestore.batch();
-      final userMenuRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('menu');
-      
+      final userMenuRef =
+          _firestore.collection('users').doc(userId).collection('menu');
+
       // Create order history
       final orderHistoryRef = _firestore
           .collection('users')
@@ -266,5 +318,128 @@ class OrdersController extends GetxController {
     if (ordersList.isEmpty) return null;
     return ordersList.fold<double>(
         0, (sum, order) => sum + (order.price * order.quantity));
+  }
+
+  Stream<QuerySnapshot> getOrderHistoryStream() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return Stream.empty();
+
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('orderHistory')
+        .orderBy('createdAt', descending: true)
+        .limit(50)
+        .withConverter(
+          fromFirestore: (snapshot, _) => snapshot.data()!,
+          toFirestore: (data, _) => data as Map<String, dynamic>,
+        )
+        .snapshots(includeMetadataChanges: false);
+  }
+
+  Future<void> deleteOldOrders() async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      // Set date cutoff (7 days ago)
+      final cutoffDate = DateTime.now().subtract(Duration(days: 7));
+
+      // Take order has more than 7 days
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('orderHistory')
+          .where('createdAt', isLessThan: cutoffDate)
+          .get();
+
+      if (snapshot.docs.isEmpty) return;
+
+      final batch = _firestore.batch();
+      for (var doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      await batch.commit();
+      print('Delete succesfull ${snapshot.docs.length} old order');
+    } catch (e) {
+      print('Error delete old order: $e');
+    }
+  }
+
+  void deleteOrder(String orderId) {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      Get.snackbar(
+        'Error',
+        'User not authenticated',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('orderHistory')
+        .doc(orderId)
+        .delete()
+        .then((_) => Get.snackbar(
+              'Success',
+              'Order deleted successfully',
+              backgroundColor: Colors.green,
+              colorText: Colors.white,
+            ))
+        .catchError((error) {
+      print('Error deleting order: $error');
+      Get.snackbar(
+        'Error',
+        'Failed to delete order',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    });
+  }
+
+  void deleteAllOrders() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      Get.snackbar(
+        'Error',
+        'User not authenticated',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('orderHistory')
+        .get()
+        .then((snapshot) {
+      final batch = _firestore.batch();
+      for (DocumentSnapshot doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      return batch.commit();
+    }).then((_) {
+      Get.snackbar(
+        'Success',
+        'All orders deleted successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    }).catchError((error) {
+      print('Error deleting all orders: $error');
+      Get.snackbar(
+        'Error',
+        'Failed to delete orders',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    });
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:manganjawa/auth/auth_services/auth_service.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
@@ -11,8 +13,12 @@ import 'package:manganjawa/routes/routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = Settings(
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      persistenceEnabled: !kIsWeb);
   final authService = Get.put(AuthService());
   await authService.initializeAuthStatus();
+
   runApp(const MainApp());
 }
 

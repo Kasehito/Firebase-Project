@@ -4,6 +4,7 @@ import 'package:manganjawa/auth/auth_pages/register.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
 import 'package:manganjawa/pages/home_page.dart';
 import 'package:manganjawa/pages/bottom_navigation.dart';
+import 'package:manganjawa/pages/order_history_page.dart';
 import 'package:manganjawa/pages/orders_page.dart';
 import 'package:manganjawa/pages/profile_page.dart';
 
@@ -15,6 +16,7 @@ class MyRoutes {
   static const String home = '/home';
   static const String ordersPage = '/ordersPage';
   static const String profilePage = '/profilePage';
+  static const String orderHistoryPage = '/orderHistoryPage';
 
   // List of GetPages for GetX navigation
   static final pageRoutes = [
@@ -48,6 +50,11 @@ class MyRoutes {
       name: profilePage,
       page: () => ProfilePage(),
       binding: NavigationBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: orderHistoryPage,
+      page: () => OrderHistoryPage(),
       transition: Transition.fadeIn,
     ),
   ];
