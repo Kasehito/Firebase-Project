@@ -1,13 +1,12 @@
-// models/order_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrderModel {
-  String? id;
-  String menuId;
-  String menuName;
-  int quantity;
-  double price;
-  DateTime createdAt;
+  final String? id;
+  final String menuId;
+  final String menuName;
+  final int quantity;
+  final double price;
+  final DateTime createdAt;
 
   OrderModel({
     this.id,
@@ -25,7 +24,7 @@ class OrderModel {
       'menuName': menuName,
       'quantity': quantity,
       'price': price,
-      'createdAt': createdAt,
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
@@ -35,8 +34,10 @@ class OrderModel {
       menuId: json['menuId'],
       menuName: json['menuName'],
       quantity: json['quantity'],
-      price: json['price'].toDouble(),
-      createdAt: (json['createdAt'] as Timestamp).toDate(),
+      price: (json['price'] as num).toDouble(),
+      createdAt: json['createdAt'] is String 
+          ? DateTime.parse(json['createdAt'])
+          : (json['createdAt'] as Timestamp).toDate(),
     );
   }
 }
