@@ -22,9 +22,27 @@ class AuthService {
           .doc('admin')
           .get();
       _isAdmin.value = doc.exists && doc['admin_email'] == email;
+
+      if (_auth.currentUser != null) {
+        await _tokenService.saveUserToken(
+          _auth.currentUser!.uid,
+          isAdmin: _isAdmin.value,
+          email: email,
+        );
+      }
     } catch (e) {
       print('Error checking admin status: $e');
       _isAdmin.value = false;
+    }
+  }
+
+  Future<void> initializeAuthStatus() async {
+    if (await _tokenService.isLoggedIn()) {
+      final email = await _tokenService.getUserEmail();
+      if (email != null) {
+        _isAdmin.value = await _tokenService.getAdminStatus();
+        await checkAdminStatus(email);
+      }
     }
   }
 
@@ -90,7 +108,12 @@ class AuthService {
       );
 
       if (credential.user != null) {
-        await _tokenService.saveUserToken(credential.user!.uid);
+        await checkAdminStatus(emailAddress);
+        await _tokenService.saveUserToken(
+          credential.user!.uid,
+          isAdmin: isAdmin,
+          email: emailAddress,
+        );
       }
       return credential.user;
     } on FirebaseAuthException catch (e) {
@@ -99,10 +122,12 @@ class AuthService {
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
       }
+      return null;
     } catch (e) {
       print(e);
+      Get.snackbar("Error", "Login failed: ${e.toString()}");
+      return null;
     }
-    return null;
   }
 
   Future<UserCredential> signInWithGoogle() async {
@@ -124,7 +149,7 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    await _tokenService.clearUserToken();
+    await _tokenService.clearUserData();
     await _auth.signOut();
     _isAdmin.value = false;
     Get.offAllNamed(MyRoutes.login);

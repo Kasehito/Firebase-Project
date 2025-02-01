@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manganjawa/auth/auth_services/auth_service.dart';
 import 'package:manganjawa/bindings/navigation_binding.dart';
 import 'package:manganjawa/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,6 +11,8 @@ import 'package:manganjawa/routes/routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final authService = Get.put(AuthService());
+  await authService.initializeAuthStatus();
   runApp(const MainApp());
 }
 
@@ -19,7 +22,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,      initialRoute: MyRoutes.login,
+      debugShowCheckedModeBanner: false,
+      initialRoute: MyRoutes.login,
       initialBinding: NavigationBinding(),
       getPages: MyRoutes.pageRoutes,
       defaultTransition: Transition.fadeIn,
