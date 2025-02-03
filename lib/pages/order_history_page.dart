@@ -11,7 +11,7 @@ class OrderHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ordersController.deleteOldOrders();
+      ordersController.deleteExpiredOrders();
     });
 
     return Scaffold(
@@ -19,12 +19,16 @@ class OrderHistoryPage extends StatelessWidget {
         title: const Text(
           'Order History',
           style: TextStyle(
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
+            icon: const Icon(
+              Icons.delete_sweep,
+              color: Colors.red,
+            ),
             onPressed: () => _showDeleteAllConfirmation(context),
           ),
         ],
@@ -65,7 +69,7 @@ class OrderHistoryPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Orders are automatically deleted after 7 days',
+              'Orders are automatically deleted after 1 minutes',
               style: TextStyle(
                 color: Colors.blue[300],
                 fontSize: 14,
@@ -119,8 +123,13 @@ class OrderHistoryPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final orderDoc = snapshot.data!.docs[index];
             final orderData = orderDoc.data() as Map<String, dynamic>;
-            final date = orderData['createdAt'].toDate();
-            final daysLeft = 7 - DateTime.now().difference(date).inDays;
+            final createdAt = (orderData['createdAt'] as Timestamp).toDate();
+            final secondsLeft =
+                60 - DateTime.now().difference(createdAt).inSeconds;
+
+            if (secondsLeft <= 0) {
+              return const SizedBox.shrink(); // Hide expired orders
+            }
 
             return Dismissible(
               key: Key(orderDoc.id),
@@ -189,7 +198,7 @@ class OrderHistoryPage extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      '$daysLeft days left',
+                                      '$secondsLeft second left',
                                       style: TextStyle(
                                         color: Colors.orange[300],
                                         fontSize: 12,
@@ -225,13 +234,13 @@ class OrderHistoryPage extends StatelessWidget {
                           _buildInfoRow(
                             Icons.calendar_today,
                             'Date',
-                            DateFormat('dd MMM yyyy').format(date),
+                            DateFormat('dd MMM yyyy').format(createdAt),
                           ),
                           const SizedBox(height: 8),
                           _buildInfoRow(
                             Icons.access_time,
                             'Time',
-                            DateFormat('HH:mm').format(date),
+                            DateFormat('HH:mm').format(createdAt),
                           ),
                           const SizedBox(height: 12),
                           _buildInfoRow(

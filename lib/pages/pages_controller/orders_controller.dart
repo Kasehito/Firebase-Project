@@ -12,6 +12,7 @@ class OrdersController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late NotificationService _notificationService;
+  Timer? _cleanupTimer;
 
   @override
   void onInit() async {
@@ -22,9 +23,17 @@ class OrdersController extends GetxController {
       _notificationService = Get.put(NotificationService(), permanent: true);
     }
     await _notificationService.initialize();
-    await deleteOldOrders();
+    _cleanupTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      deleteExpiredOrders();
+    });
     loadSavedOrders();
     listenToOrders();
+  }
+
+  @override
+  void onClose() {
+    _cleanupTimer?.cancel();
+    super.onClose();
   }
 
   void listenToOrders() {
@@ -337,33 +346,44 @@ class OrdersController extends GetxController {
         .snapshots(includeMetadataChanges: false);
   }
 
-  Future<void> deleteOldOrders() async {
+ Future<void> deleteExpiredOrders() async {
     try {
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
-      // Set date cutoff (7 days ago)
-      final cutoffDate = DateTime.now().subtract(Duration(days: 7));
-
-      // Take order has more than 7 days
+      final now = DateTime.now();
       final snapshot = await _firestore
           .collection('users')
           .doc(userId)
           .collection('orderHistory')
-          .where('createdAt', isLessThan: cutoffDate)
           .get();
 
-      if (snapshot.docs.isEmpty) return;
-
       final batch = _firestore.batch();
+      var deletedCount = 0;
+
       for (var doc in snapshot.docs) {
-        batch.delete(doc.reference);
+        final orderData = doc.data();
+        final createdAt = (orderData['createdAt'] as Timestamp).toDate();
+        
+        // Check if order is older than 1 minute
+        if (now.difference(createdAt).inMinutes >= 1) {
+          batch.delete(doc.reference);
+          deletedCount++;
+        }
       }
 
-      await batch.commit();
-      print('Delete succesfull ${snapshot.docs.length} old order');
+      if (deletedCount > 0) {
+        await batch.commit();
+        print('Automatically deleted $deletedCount expired orders');
+        
+        // Show notification
+        await _notificationService.showLocalNotification(
+          title: 'Orders Cleaned',
+          body: '$deletedCount expired orders have been removed',
+        );
+      }
     } catch (e) {
-      print('Error delete old order: $e');
+      print('Error deleting expired orders: $e');
     }
   }
 
