@@ -193,18 +193,6 @@ class OrderHistoryPage extends StatelessWidget {
                                       horizontal: 12,
                                       vertical: 6,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      '$secondsLeft second left',
-                                      style: TextStyle(
-                                        color: Colors.orange[300],
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
                                   ),
                                   const SizedBox(width: 8),
                                   Container(
