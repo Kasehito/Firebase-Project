@@ -233,11 +233,11 @@ class OrderHistoryPage extends StatelessWidget {
                             'Time',
                             DateFormat('HH:mm').format(date),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           _buildInfoRow(
                             Icons.payment,
                             'Total',
-                            'Rp ${NumberFormat.decimalPattern('id').format(orderData['totalAmount']).replaceAll(',', '.')}',
+                            'Rp ${NumberFormat('#,##0.000', 'id').format((orderData['totalAmount'] as num).toDouble()).replaceAll(',', '.')}',
                           ),
                         ],
                       ),
