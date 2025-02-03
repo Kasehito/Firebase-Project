@@ -392,7 +392,6 @@ class OrdersController extends GetxController {
               colorText: Colors.white,
             ))
         .catchError((error) {
-      print('Error deleting order: $error');
       Get.snackbar(
         'Error',
         'Failed to delete order',
