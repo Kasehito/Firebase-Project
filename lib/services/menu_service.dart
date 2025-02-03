@@ -6,7 +6,6 @@ class MenuService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  // Create
   Future<void> addMenu(MenuModel menu) async {
     try {
       // Tetapkan ID dokumen secara manual
