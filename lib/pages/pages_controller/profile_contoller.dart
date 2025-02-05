@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/auth/auth_services/auth_service.dart';
+import 'package:manganjawa/pages/widget/logout_confirmation.dart';
 
 class ProfileController extends GetxController {
   final AuthService authService = Get.find<AuthService>();
@@ -33,8 +34,11 @@ class ProfileController extends GetxController {
     }
   }
 
-  void logout() {
-    authService.signOut();
+  void logout() async {
+    final bool? confirmed = await LogoutConfirmation.show(Get.context!);
+    if (confirmed == true) {
+      authService.signOut();
+    }
   }
 
   @override
