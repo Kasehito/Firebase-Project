@@ -315,8 +315,6 @@ class OrdersController extends GetxController {
         title: 'Order Completed',
         body: 'Your order has been successfully placed!',
       );
-
-      Get.snackbar('Success', 'Order placed successfully');
     } catch (e) {
       print('Error during checkout: $e');
       Get.snackbar('Error', 'Checkout failed');
@@ -346,7 +344,7 @@ class OrdersController extends GetxController {
         .snapshots(includeMetadataChanges: false);
   }
 
- Future<void> deleteExpiredOrders() async {
+  Future<void> deleteExpiredOrders() async {
     try {
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
@@ -364,7 +362,7 @@ class OrdersController extends GetxController {
       for (var doc in snapshot.docs) {
         final orderData = doc.data();
         final createdAt = (orderData['createdAt'] as Timestamp).toDate();
-        
+
         // Check if order is older than 1 minute
         if (now.difference(createdAt).inMinutes >= 1) {
           batch.delete(doc.reference);
@@ -375,7 +373,7 @@ class OrdersController extends GetxController {
       if (deletedCount > 0) {
         await batch.commit();
         print('Automatically deleted $deletedCount expired orders');
-        
+
         // Show notification
         await _notificationService.showLocalNotification(
           title: 'Orders Cleaned',

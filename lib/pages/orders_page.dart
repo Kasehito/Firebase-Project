@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manganjawa/pages/widget/checkout_confirmation.dart';
+import 'package:manganjawa/services/notification_service.dart';
 import '../pages/pages_controller/orders_controller.dart';
 
 class OrdersPage extends StatelessWidget {
@@ -145,24 +147,41 @@ class OrdersPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: ordersController.ordersList.isEmpty
                         ? null
                         : () async {
-                            await ordersController.checkout();
+                            final bool? confirmed =
+                                await CheckoutConfirmation.show(
+                              context,
+                              title: 'Confirm Order',
+                              subtitle:
+                                  'Please review your order details before confirming.',
+                              totalAmount: ordersController.totalAmount
+                                      ?.toStringAsFixed(3) ??
+                                  "0",
+                              itemCount: ordersController.ordersList.length,
+                              confirmText: 'Place Order',
+                              cancelText: 'Review Order',
+                            );
+
+                            if (confirmed == true) {
+                              await ordersController.checkout();
+                            }
                           },
+                    icon: const Icon(Icons.shopping_cart_checkout),
+                    label: const Text(
+                      'Checkout',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF9F1C),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Checkout',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

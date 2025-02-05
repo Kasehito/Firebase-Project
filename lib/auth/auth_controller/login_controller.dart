@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-
 import 'package:manganjawa/routes/routes.dart';
 import 'package:manganjawa/auth/auth_services/auth_service.dart';
 
