@@ -39,6 +39,11 @@ class ProfileController extends GetxController {
     authService.signOut();
   }
 
+  void removeProfileImage() {
+    profileImagePath.value = '';
+    authService.updateProfilePicture('');
+  }
+
   @override
   void onClose() {
     nameController.dispose();

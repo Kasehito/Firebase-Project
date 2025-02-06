@@ -16,17 +16,17 @@ class ProfilePage extends GetView<ProfileController> {
       color: AppColors.primary,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
               _buildHeader(context),
-              const SizedBox(height: 40),
-              _buildProfilePicture(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
+              _buildProfilePicture(context),
+              const SizedBox(height: 30),
               _buildNameCard(context),
-              const SizedBox(height: 16),
+              const Spacer(),
               _buildEmailCard(context),
               const Spacer(),
               _buildActionButtons(),
@@ -49,54 +49,107 @@ class ProfilePage extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildProfilePicture() {
+  Widget _buildProfilePicture(BuildContext context) {
     return Center(
-      child: GestureDetector(
-        onTap: () async {
-          final ImagePicker _picker = ImagePicker();
-          final XFile? image =
-              await _picker.pickImage(source: ImageSource.gallery);
-          if (image != null) {
-            controller.updateProfileImage(image.path);
-          }
-        },
-        child: Obx(() => Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.orange, width: 2),
-              ),
-              child: ClipOval(
-                child: controller.profileImagePath.value.startsWith('http')
-                    ? Image.network(
-                        controller.profileImagePath.value,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(
-                          Icons.person,
-                          size: 60,
-                          color: AppColors.textColor,
-                        ),
-                      )
-                    : controller.profileImagePath.value.isNotEmpty
-                        ? Image.file(
-                            File(controller.profileImagePath.value),
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          )
-                        : const Icon(
+      child: Stack(
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.orange, width: 2),
+            ),
+            child: ClipOval(
+              child:
+                  Obx(() => controller.profileImagePath.value.startsWith('http')
+                      ? Image.network(
+                          controller.profileImagePath.value,
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
                             Icons.person,
                             size: 60,
                             color: AppColors.textColor,
                           ),
+                        )
+                      : controller.profileImagePath.value.isNotEmpty
+                          ? Image.file(
+                              File(controller.profileImagePath.value),
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(
+                              Icons.person,
+                              size: 60,
+                              color: AppColors.textColor,
+                            )),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: () => _showImageOptions(context),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.edit,
+                  size: 20,
+                  color: Colors.white,
+                ),
               ),
-            )),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  void _showImageOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.orange),
+                title: const Text('Choose from Gallery',
+                    style: TextStyle(color: Colors.white)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final ImagePicker _picker = ImagePicker();
+                  final XFile? image =
+                      await _picker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    controller.updateProfileImage(image.path);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Remove Picture',
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.removeProfileImage();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
