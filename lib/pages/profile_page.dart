@@ -68,20 +68,33 @@ class ProfilePage extends GetView<ProfileController> {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.orange, width: 2),
               ),
-              child: controller.profileImagePath.isNotEmpty
-                  ? ClipOval(
-                      child: Image.file(
-                        File(controller.profileImagePath.value),
+              child: ClipOval(
+                child: controller.profileImagePath.value.startsWith('http')
+                    ? Image.network(
+                        controller.profileImagePath.value,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.person,
-                      size: 60,
-                      color: AppColors.textColor,
-                    ),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                          Icons.person,
+                          size: 60,
+                          color: AppColors.textColor,
+                        ),
+                      )
+                    : controller.profileImagePath.value.isNotEmpty
+                        ? Image.file(
+                            File(controller.profileImagePath.value),
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          )
+                        : const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: AppColors.textColor,
+                          ),
+              ),
             )),
       ),
     );

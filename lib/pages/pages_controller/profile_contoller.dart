@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/auth/auth_services/auth_service.dart';
-import 'package:manganjawa/pages/widget/logout_confirmation.dart';
 
 class ProfileController extends GetxController {
   final AuthService authService = Get.find<AuthService>();
@@ -17,6 +16,7 @@ class ProfileController extends GetxController {
     final user = authService.getCurrentUser();
     nameController.text = user?.displayName ?? user?.email ?? '';
     profileImageController.text = user?.photoURL ?? '';
+    profileImagePath.value = user?.photoURL ?? '';
     userEmail.value = user?.email ?? '';
   }
 
@@ -29,16 +29,14 @@ class ProfileController extends GetxController {
 
   void updateProfileImage(String imagePath) {
     if (imagePath.isNotEmpty) {
-      authService.updateProfilePicture(imagePath);
       profileImagePath.value = imagePath;
+
+      authService.updateProfilePicture(imagePath);
     }
   }
 
-  void logout() async {
-    final bool? confirmed = await LogoutConfirmation.show(Get.context!);
-    if (confirmed == true) {
-      authService.signOut();
-    }
+  void logout() {
+    authService.signOut();
   }
 
   @override

@@ -17,7 +17,7 @@ void main() async {
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       persistenceEnabled: !kIsWeb);
   final authService = Get.put(AuthService());
-  await authService.initializeAuthStatus();
+  await authService.           initializeAuthStatus();
 
   runApp(const MainApp());
 }
