@@ -9,10 +9,14 @@ import '../../services/notification_service.dart';
 
 class OrdersController extends GetxController {
   final RxList<OrderModel> ordersList = <OrderModel>[].obs;
+  final RxList<QueryDocumentSnapshot> orderHistoryDocs =
+      <QueryDocumentSnapshot>[].obs;
+  final Rx<DocumentSnapshot?> lastDocument = Rx<DocumentSnapshot?>(null);
+  final RxBool isLoadingMore = false.obs;
+  final int limitPerPage = 10;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late NotificationService _notificationService;
-  Timer? _cleanupTimer;
 
   @override
   void onInit() async {
@@ -23,16 +27,12 @@ class OrdersController extends GetxController {
       _notificationService = Get.put(NotificationService(), permanent: true);
     }
     await _notificationService.initialize();
-    _cleanupTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      deleteExpiredOrders();
-    });
     loadSavedOrders();
     listenToOrders();
   }
 
   @override
   void onClose() {
-    _cleanupTimer?.cancel();
     super.onClose();
   }
 
@@ -327,61 +327,52 @@ class OrdersController extends GetxController {
         0, (sum, order) => sum + (order.price * order.quantity));
   }
 
-  Stream<QuerySnapshot> getOrderHistoryStream() {
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) return Stream.empty();
-
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('orderHistory')
-        .orderBy('createdAt', descending: true)
-        .limit(50)
-        .withConverter(
-          fromFirestore: (snapshot, _) => snapshot.data()!,
-          toFirestore: (data, _) => data as Map<String, dynamic>,
-        )
-        .snapshots(includeMetadataChanges: false);
-  }
-
-  Future<void> deleteExpiredOrders() async {
+  Future<void> loadInitialOrderHistory() async {
     try {
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
-      final now = DateTime.now();
-      final snapshot = await _firestore
+      final querySnapshot = await _firestore
           .collection('users')
           .doc(userId)
           .collection('orderHistory')
+          .orderBy('createdAt', descending: true)
+          .limit(limitPerPage)
           .get();
 
-      final batch = _firestore.batch();
-      var deletedCount = 0;
+      orderHistoryDocs.value = querySnapshot.docs;
+      lastDocument.value =
+          querySnapshot.docs.isNotEmpty ? querySnapshot.docs.last : null;
+    } catch (e) {
+      print('Error loading initial order history: $e');
+    }
+  }
 
-      for (var doc in snapshot.docs) {
-        final orderData = doc.data();
-        final createdAt = (orderData['createdAt'] as Timestamp).toDate();
+  Future<void> loadMoreOrderHistory() async {
+    if (isLoadingMore.value || lastDocument.value == null) return;
 
-        // Check if order is older than 1 minute
-        if (now.difference(createdAt).inMinutes >= 1) {
-          batch.delete(doc.reference);
-          deletedCount++;
-        }
-      }
+    try {
+      isLoadingMore.value = true;
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
 
-      if (deletedCount > 0) {
-        await batch.commit();
-        print('Automatically deleted $deletedCount expired orders');
+      final querySnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('orderHistory')
+          .orderBy('createdAt', descending: true)
+          .startAfterDocument(lastDocument.value!)
+          .limit(limitPerPage)
+          .get();
 
-        // Show notification
-        await _notificationService.showLocalNotification(
-          title: 'Orders Cleaned',
-          body: '$deletedCount expired orders have been removed',
-        );
+      if (querySnapshot.docs.isNotEmpty) {
+        orderHistoryDocs.addAll(querySnapshot.docs);
+        lastDocument.value = querySnapshot.docs.last;
       }
     } catch (e) {
-      print('Error deleting expired orders: $e');
+      print('Error loading more order history: $e');
+    } finally {
+      isLoadingMore.value = false;
     }
   }
 

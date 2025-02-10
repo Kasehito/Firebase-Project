@@ -7,13 +7,24 @@ import 'package:manganjawa/pages/pages_controller/orders_controller.dart';
 
 class OrderHistoryPage extends StatelessWidget {
   final OrdersController ordersController = Get.find<OrdersController>();
+  final ScrollController _scrollController = ScrollController();
+
+  OrderHistoryPage({Key? key}) : super(key: key) {
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ordersController.loadInitialOrderHistory();
+    });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      ordersController.loadMoreOrderHistory();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ordersController.deleteExpiredOrders();
-    });
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -25,10 +36,7 @@ class OrderHistoryPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.delete_sweep,
-              color: Colors.red,
-            ),
+            icon: const Icon(Icons.delete_sweep, color: Colors.red),
             onPressed: () => _showDeleteAllConfirmation(context),
           ),
         ],
@@ -37,215 +45,176 @@ class OrderHistoryPage extends StatelessWidget {
       ),
       body: Container(
         color: AppColors.primary,
+        child: Obx(() => _buildOrdersList(context)),
+      ),
+    );
+  }
+
+  Widget _buildOrdersList(BuildContext context) {
+    if (ordersController.orderHistoryDocs.isEmpty) {
+      return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildInfoBanner(),
-            Expanded(
-              child: _buildOrdersList(),
+            Icon(Icons.receipt_long, size: 64, color: Colors.grey[600]),
+            const SizedBox(height: 16),
+            Text(
+              'No order history yet',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildInfoBanner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline,
-            color: Colors.blue[300],
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Orders are automatically deleted after 1 minutes',
-              style: TextStyle(
-                color: Colors.blue[300],
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrdersList() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: ordersController.getOrderHistoryStream(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.secondary,
-            ),
-          );
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.receipt_long,
-                  size: 64,
-                  color: Colors.grey[600],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No order history yet',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: ordersController.orderHistoryDocs.length + 1,
+      itemBuilder: (context, index) {
+        if (index == ordersController.orderHistoryDocs.length) {
+          return Obx(() => ordersController.isLoadingMore.value
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
                   ),
-                ),
-              ],
-            ),
-          );
+                )
+              : const SizedBox.shrink());
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (context, index) {
-            final orderDoc = snapshot.data!.docs[index];
-            final orderData = orderDoc.data() as Map<String, dynamic>;
-            final createdAt = (orderData['createdAt'] as Timestamp).toDate();
-            final secondsLeft =
-                60 - DateTime.now().difference(createdAt).inSeconds;
+        final orderDoc = ordersController.orderHistoryDocs[index];
+        final orderData = orderDoc.data() as Map<String, dynamic>;
+        final createdAt = (orderData['createdAt'] as Timestamp).toDate();
 
-            if (secondsLeft <= 0) {
-              return const SizedBox.shrink(); // Hide expired orders
-            }
+        return _buildOrderCard(
+            orderDoc.id, orderData, createdAt, index, context);
+      },
+    );
+  }
 
-            return Dismissible(
-              key: Key(orderDoc.id),
-              background: Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 20),
-                child: const Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-              ),
-              direction: DismissDirection.endToStart,
-              confirmDismiss: (direction) => _showDeleteConfirmation(context),
-              onDismissed: (direction) {
-                ordersController.deleteOrder(orderDoc.id);
-              },
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () => _showOrderDetails(context, orderData),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildOrderCard(String orderId, Map<String, dynamic> orderData,
+      DateTime createdAt, int index, BuildContext context) {
+    final secondsLeft = 60 - DateTime.now().difference(createdAt).inSeconds;
+
+    if (secondsLeft <= 0) {
+      return const SizedBox.shrink(); // Hide expired orders
+    }
+
+    return Dismissible(
+      key: Key(orderId),
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) => _showDeleteConfirmation(context),
+      onDismissed: (direction) {
+        ordersController.deleteOrder(orderId);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => _showOrderDetails(context, orderData),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Order #${ordersController.orderHistoryDocs.length - index}',
+                        style: const TextStyle(
+                          color: AppColors.textColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Order #${snapshot.data!.docs.length - index}',
-                                style: const TextStyle(
-                                  color: AppColors.textColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Completed',
+                              style: TextStyle(
+                                color: AppColors.secondary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
                               ),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          AppColors.secondary.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      'Completed',
-                                      style: TextStyle(
-                                        color: AppColors.secondary,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          _buildInfoRow(
-                            Icons.calendar_today,
-                            'Date',
-                            DateFormat('dd MMM yyyy').format(createdAt),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInfoRow(
-                            Icons.access_time,
-                            'Time',
-                            DateFormat('HH:mm').format(createdAt),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildInfoRow(
-                            Icons.payment,
-                            'Total',
-                            'Rp ${NumberFormat('#,##0.000', 'id').format((orderData['totalAmount'] as num).toDouble()).replaceAll(',', '.')}',
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    Icons.calendar_today,
+                    'Date',
+                    DateFormat('dd MMM yyyy').format(createdAt),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    Icons.access_time,
+                    'Time',
+                    DateFormat('HH:mm').format(createdAt),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    Icons.payment,
+                    'Total',
+                    'Rp ${NumberFormat('#,##0.000', 'id').format((orderData['totalAmount'] as num).toDouble()).replaceAll(',', '.')}',
+                  ),
+                ],
               ),
-            );
-          },
-        );
-      },
+            ),
+          ),
+        ),
+      ),
     );
   }
 
