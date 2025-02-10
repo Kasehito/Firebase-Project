@@ -36,28 +36,35 @@ class CheckoutConfirmation extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.45,
-          decoration: const BoxDecoration(
-            color: Color(0xFF2A2A2A),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+        return SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-          ),
-          child: CheckoutConfirmation(
-            title: title,
-            subtitle: subtitle,
-            totalAmount: totalAmount,
-            itemCount: itemCount,
-            confirmText: confirmText,
-            cancelText: cancelText,
-            onConfirm: () {
-              Navigator.of(context).pop(true);
-            },
-            onCancel: () {
-              Navigator.of(context).pop(false);
-            },
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+            ),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: CheckoutConfirmation(
+              title: title,
+              subtitle: subtitle,
+              totalAmount: totalAmount,
+              itemCount: itemCount,
+              confirmText: confirmText,
+              cancelText: cancelText,
+              onConfirm: () {
+                Navigator.of(context).pop(true);
+              },
+              onCancel: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
           ),
         );
       },

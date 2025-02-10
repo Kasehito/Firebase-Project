@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:manganjawa/auth/auth_services/auth_service.dart';
 import 'package:manganjawa/pages/pages_controller/menu_controller.dart';
 import 'package:manganjawa/pages/menu_editor_page.dart';
@@ -17,11 +19,11 @@ class Home extends StatelessWidget {
   IconData _getIconForCategory(String category) {
     switch (category.toLowerCase()) {
       case 'makanan':
-        return Icons.fastfood;
+        return Icons.lunch_dining;
       case 'minuman':
-        return Icons.local_drink;
+        return HugeIcons.strokeRoundedSoftDrink01;
       case 'snack':
-        return Icons.cake;
+        return Icons.cookie;
       default:
         return Icons.restaurant;
     }
@@ -87,39 +89,50 @@ class Home extends StatelessWidget {
                   const SizedBox(height: 24),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        CategoryCard(
-                          color: const Color(0xFFF5D4C1),
-                          icon: Icons.fastfood,
-                          label: 'Makanan',
-                          onTap: () {
-                            menuController.selectedCategory.value = 'makanan';
-                            menuController.filterMenuByCategory('makanan');
-                          },
-                        ),
-                        const SizedBox(width: 16),
-                        CategoryCard(
-                          color: const Color(0xFFFDEBC8),
-                          icon: Icons.local_drink,
-                          label: 'Minuman',
-                          onTap: () {
-                            menuController.selectedCategory.value = 'minuman';
-                            menuController.filterMenuByCategory('minuman');
-                          },
-                        ),
-                        const SizedBox(width: 16),
-                        CategoryCard(
-                          color: const Color(0xFFD0F1EB),
-                          icon: Icons.cake,
-                          label: 'Snack',
-                          onTap: () {
-                            menuController.selectedCategory.value = 'snack';
-                            menuController.filterMenuByCategory('snack');
-                          },
-                        ),
-                      ],
-                    ),
+                    child: Obx(() => Row(
+                          children: [
+                            CategoryCard(
+                              color: const Color(0xFFF5D4C1),
+                              icon: Icons.lunch_dining,
+                              label: 'Makanan',
+                              isSelected:
+                                  menuController.selectedCategory.value ==
+                                      'makanan',
+                              onTap: () {
+                                menuController.selectedCategory.value =
+                                    'makanan';
+                                menuController.filterMenuByCategory('makanan');
+                              },
+                            ),
+                            const SizedBox(width: 16),
+                            CategoryCard(
+                              color: const Color(0xFFFDEBC8),
+                              icon: HugeIcons.strokeRoundedSoftDrink01,
+                              label: 'Minuman',
+                              isSelected:
+                                  menuController.selectedCategory.value ==
+                                      'minuman',
+                              onTap: () {
+                                menuController.selectedCategory.value =
+                                    'minuman';
+                                menuController.filterMenuByCategory('minuman');
+                              },
+                            ),
+                            const SizedBox(width: 16),
+                            CategoryCard(
+                              color: const Color(0xFFD0F1EB),
+                              icon: Icons.cookie,
+                              label: 'Snack',
+                              isSelected:
+                                  menuController.selectedCategory.value ==
+                                      'snack',
+                              onTap: () {
+                                menuController.selectedCategory.value = 'snack';
+                                menuController.filterMenuByCategory('snack');
+                              },
+                            ),
+                          ],
+                        )),
                   ),
                 ],
               ),

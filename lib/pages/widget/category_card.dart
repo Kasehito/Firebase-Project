@@ -5,6 +5,7 @@ class CategoryCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool isSelected;
 
   const CategoryCard({
     Key? key,
@@ -12,6 +13,7 @@ class CategoryCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.isSelected = false,
   }) : super(key: key);
 
   @override
@@ -22,11 +24,11 @@ class CategoryCard extends StatelessWidget {
         width: 100,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: isSelected ? color.withOpacity(0.3) : color.withOpacity(0.2),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: color,
-            width: 2,
+            color: isSelected ? color : color.withOpacity(0.5),
+            width: isSelected ? 2.5 : 2,
           ),
         ),
         child: Column(
@@ -34,16 +36,16 @@ class CategoryCard extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: color,
+              color: isSelected ? color : color.withOpacity(0.7),
               size: 32,
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
-                color: color,
+                color: isSelected ? color : color.withOpacity(0.7),
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ],
