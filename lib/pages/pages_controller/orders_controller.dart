@@ -31,10 +31,6 @@ class OrdersController extends GetxController {
     listenToOrders();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 
   void listenToOrders() {
     final userId = _auth.currentUser?.uid;
@@ -87,7 +83,6 @@ class OrdersController extends GetxController {
   Future<void> addToOrder(MenuModel menu) async {
     int retryCount = 0;
     const maxRetries = 3;
-    const timeout = Duration(seconds: 10);
 
     while (retryCount < maxRetries) {
       try {
@@ -98,11 +93,6 @@ class OrdersController extends GetxController {
         }
 
         // Use timeout for the entire operation
-        final result = await Future.any([
-          _processOrder(userId, menu),
-          Future.delayed(timeout)
-              .then((_) => throw TimeoutException('Operation timed out')),
-        ]);
 
         // If successful, show notification and return
         await _notificationService.showLocalNotification(
@@ -135,58 +125,6 @@ class OrdersController extends GetxController {
         break;
       }
     }
-  }
-
-  Future<void> _processOrder(String userId, MenuModel menu) async {
-    // Check stock first
-    final menuDoc = await _firestore.collection('menu').doc(menu.id).get();
-    if (!menuDoc.exists) {
-      throw Exception('Menu item not found');
-    }
-
-    final currentStock = menuDoc.data()?['stok'] as int;
-    if (currentStock <= 0) {
-      throw Exception('Item out of stock');
-    }
-
-    // Reference to user's menu collection
-    final userMenuRef =
-        _firestore.collection('users').doc(userId).collection('menu');
-
-    // Start a transaction
-    return _firestore.runTransaction((transaction) async {
-      final existingOrderQuery =
-          await userMenuRef.where('menuId', isEqualTo: menu.id).get();
-
-      if (existingOrderQuery.docs.isNotEmpty) {
-        final existingDoc = existingOrderQuery.docs.first;
-        final currentQuantity = existingDoc.data()['quantity'] as int;
-
-        transaction.update(userMenuRef.doc(existingDoc.id), {
-          'quantity': currentQuantity + 1,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      } else {
-        final newOrderRef = userMenuRef.doc();
-        transaction.set(newOrderRef, {
-          'menuId': menu.id,
-          'menuName': menu.nama,
-          'quantity': 1,
-          'price': menu.harga,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      transaction.update(
-        _firestore.collection('menu').doc(menu.id),
-        {'stok': FieldValue.increment(-1)},
-      );
-    }).timeout(
-      const Duration(seconds: 5),
-      onTimeout: () {
-        throw TimeoutException('Transaction timed out');
-      },
-    );
   }
 
   Future<void> removeOrder(String menuId) async {
@@ -401,11 +339,10 @@ class OrdersController extends GetxController {
               colorText: Colors.white,
             ))
         .catchError((error) {
-      Get.snackbar(
+      return Get.snackbar(
         'Error',
-        'Failed to delete order',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        'An error occurred: $error',
+        snackPosition: SnackPosition.BOTTOM,
       );
     });
   }

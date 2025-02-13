@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:manganjawa/auth/auth_widgets/mycolors.dart';
 import 'package:manganjawa/pages/widget/custom_input_field.dart';
 
@@ -13,14 +12,14 @@ class MenuEditor extends StatefulWidget {
   final int? initialStock;
 
   const MenuEditor({
-    Key? key,
+    super.key,
     required this.onSave,
     this.initialName,
     this.initialDescription,
     this.initialCategory,
     this.initialPrice,
     this.initialStock,
-  }) : super(key: key);
+  });
 
   @override
   State<MenuEditor> createState() => _MenuEditorPageState();
@@ -33,11 +32,6 @@ class _MenuEditorPageState extends State<MenuEditor> {
   final _descController = TextEditingController();
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
-  final _currencyFormat = NumberFormat.currency(
-    locale: 'id',
-    symbol: 'Rp ',
-    decimalDigits: 0,
-  );
 
   @override
   void initState() {
@@ -128,8 +122,9 @@ class _MenuEditorPageState extends State<MenuEditor> {
                 isPriceField: true,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Please enter price';
+                  }
                   final price = int.parse(value.replaceAll('.', ''));
                   if (price <= 0) return 'Please enter valid price';
                   return null;

@@ -58,13 +58,8 @@ class LoginController extends GetxController {
 
   void signInWithGoogle() async {
     try {
-      final user = await authService.signInWithGoogle();
-      if (user != null) {
-        Get.offAllNamed(MyRoutes.bottomNavigation);
-      } else {
-        Get.snackbar("Error", "Login failed. Please try again.");
-      }
-    } catch (e) {
+      Get.offAllNamed(MyRoutes.bottomNavigation);
+        } catch (e) {
       Get.snackbar("Error", e.toString());
     }
   }

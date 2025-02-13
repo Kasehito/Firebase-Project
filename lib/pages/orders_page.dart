@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manganjawa/pages/widget/checkout_confirmation.dart';
-import 'package:manganjawa/services/notification_service.dart';
 import '../pages/pages_controller/orders_controller.dart';
 
 class OrdersPage extends StatelessWidget {

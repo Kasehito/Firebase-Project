@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:manganjawa/pages/pages_models/menu_model.dart';
 
 class MenuService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<void> addMenu(MenuModel menu) async {
     try {
@@ -37,7 +35,7 @@ class MenuService {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .map((doc) => MenuModel.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => MenuModel.fromJson(doc.data()))
           .toList();
     });
   }
